@@ -8,7 +8,7 @@
 PRODUCT_NAME = m3u_playlist
 
 // The application's bundle identifier
-PRODUCT_BUNDLE_IDENTIFIER = com.example.m3uPlaylist
+PRODUCT_BUNDLE_IDENTIFIER = com.github.ken_tn.m3uPlaylist
 
 // The copyright displayed in application information
-PRODUCT_COPYRIGHT = Copyright © 2023 com.example. All rights reserved.
+PRODUCT_COPYRIGHT = Copyright © 2023 com.github.ken_tn. All rights reserved.

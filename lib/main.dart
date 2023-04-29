@@ -1,6 +1,7 @@
 import 'package:english_words/english_words.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 void main() {
   runApp(MyApp());
@@ -42,6 +43,13 @@ class MyAppState extends ChangeNotifier {
       favorites.add(current);
     }
     notifyListeners();
+  }
+
+  Future<void> requestPermission(Permission permission) async {
+    var status = await permission.status;
+    if (status.isDenied) {
+      status = await permission.request();
+    }
   }
 }
 
@@ -137,6 +145,7 @@ class GeneratorPage extends StatelessWidget {
               SizedBox(width: 10),
               ElevatedButton(
                 onPressed: () {
+                  appState.requestPermission(Permission.manageExternalStorage);
                   appState.getNext();
                 },
                 child: Text('Next'),

@@ -89,11 +89,11 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "CompanyName", "com.example" "\0"
+            VALUE "CompanyName", "com.github.ken_tn" "\0"
             VALUE "FileDescription", "m3u_playlist" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
             VALUE "InternalName", "m3u_playlist" "\0"
-            VALUE "LegalCopyright", "Copyright (C) 2023 com.example. All rights reserved." "\0"
+            VALUE "LegalCopyright", "Copyright (C) 2023 com.github.ken_tn. All rights reserved." "\0"
             VALUE "OriginalFilename", "m3u_playlist.exe" "\0"
             VALUE "ProductName", "m3u_playlist" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"

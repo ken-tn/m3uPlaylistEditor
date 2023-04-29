@@ -1,5 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.m3u_playlist">
+    package="com.github.ken_tn.m3u_playlist">
+    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE"/>
    <application
         android:label="m3u_playlist"
         android:name="${applicationName}"

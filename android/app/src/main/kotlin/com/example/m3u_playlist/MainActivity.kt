@@ -1,4 +1,4 @@
-package com.example.m3u_playlist
+package com.github.ken_tn.m3u_playlist
 
 import io.flutter.embedding.android.FlutterActivity
 
