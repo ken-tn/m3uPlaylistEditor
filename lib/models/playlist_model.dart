@@ -15,6 +15,6 @@ class Playlist {
 
   @override
   String toString() {
-    return 'PlaylistFiles{path: $path}';
+    return 'Playlist{path: $path}';
   }
 }

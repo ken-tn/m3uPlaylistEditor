@@ -17,7 +17,7 @@ const Map<String, Function> audioFileFormats = {
 // '.wav',
 // '.opus',
 
-Map<String, List<Object>> playlistsAndAudio() {
+List playlistsAndAudio() {
   Directory dir = Directory('/storage/emulated/0/');
   List<FileSystemEntity> files =
       dir.listSync(recursive: true, followLinks: false);
@@ -35,5 +35,5 @@ Map<String, List<Object>> playlistsAndAudio() {
     }
   }
 
-  return {'playlists': playlists, 'audio': songs};
+  return [playlists, songs];
 }

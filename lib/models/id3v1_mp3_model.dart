@@ -18,6 +18,15 @@ class Mp3ID3v1 {
   Map<String, dynamic> toMap() {
     return {
       'title': title,
+      'artist': artist,
+      'album': album,
+      'year': year,
+      'genre': genre,
     };
+  }
+
+  @override
+  String toString() {
+    return 'Mp3ID3v1{title: $title}';
   }
 }
