@@ -1,6 +1,7 @@
 import 'dart:io';
 
-import 'package:m3u_playlist/models/playlist.dart';
+import 'package:m3u_playlist/models/playlist_model.dart';
+
 import 'mp3_utils.dart';
 import 'playlist_utils.dart';
 
@@ -16,7 +17,7 @@ const Map<String, Function> audioFileFormats = {
 // '.wav',
 // '.opus',
 
-Map<String, List<Object>> getPlaylistsAndAudio() {
+Map<String, List<Object>> playlistsAndAudio() {
   Directory dir = Directory('/storage/emulated/0/');
   List<FileSystemEntity> files =
       dir.listSync(recursive: true, followLinks: false);
@@ -34,7 +35,5 @@ Map<String, List<Object>> getPlaylistsAndAudio() {
     }
   }
 
-  print(songs);
-  print(playlists);
   return {'playlists': playlists, 'audio': songs};
 }

@@ -2,12 +2,12 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
-import '../models/playlist.dart';
+import 'package:m3u_playlist/models/playlist_model.dart';
 
-Future<Database> database = main();
+Future<Database> database = loadsql();
 
-Future<Database> main() async {
-  return database = openDatabase(
+Future<Database> loadsql() async {
+  return openDatabase(
     // Set the path to the database. Note: Using the `join` function from the
     // `path` package is best practice to ensure the path is correctly
     // constructed for each platform.
@@ -19,8 +19,8 @@ Future<Database> main() async {
       // TODO: use json tag data instead of explicit tags for files?
       return db.execute(
         """
-        CREATE TABLE Playlist(id INTEGER PRIMARY KEY, path TEXT);
-        CREATE TABLE Audio(id INTEGER, path TEXT, type TEXT);
+        CREATE TABLE Playlist(path TEXT PRIMARY KEY);
+        CREATE TABLE Audio(id INTEGER PRIMARY KEY AUTOINCREMENT, path TEXT, type TEXT);
         CREATE TABLE Mp3ID3v1(id INTEGER, title TEXT, artist TEXT,
             album TEXT, year INTEGER, genre TEXT,
             FOREIGN KEY(id) REFERENCES Audio(id))

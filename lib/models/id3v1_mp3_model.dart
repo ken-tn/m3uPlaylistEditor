@@ -1,6 +1,4 @@
 class Mp3ID3v1 {
-  final int id;
-  final String path;
   final String title;
   final String artist;
   final String album;
@@ -8,8 +6,6 @@ class Mp3ID3v1 {
   final String genre;
 
   const Mp3ID3v1({
-    required this.id,
-    required this.path,
     required this.title,
     required this.artist,
     required this.album,
@@ -21,8 +17,7 @@ class Mp3ID3v1 {
   // columns in the database.
   Map<String, dynamic> toMap() {
     return {
-      'id': id,
-      'path': path,
+      'title': title,
     };
   }
 }
