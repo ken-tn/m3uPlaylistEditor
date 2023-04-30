@@ -2,6 +2,7 @@ import 'package:english_words/english_words.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'utilities/file_utils.dart';
 
 void main() {
   runApp(MyApp());
@@ -45,11 +46,8 @@ class MyAppState extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> requestPermission(Permission permission) async {
-    var status = await permission.status;
-    if (status.isDenied) {
-      status = await permission.request();
-    }
+  Future<void> requestPermission(List<Permission> permission) async {
+    Map<Permission, PermissionStatus> statuses = await permission.request();
   }
 }
 
@@ -119,6 +117,11 @@ class GeneratorPage extends StatelessWidget {
     var appState = context.watch<MyAppState>();
     var pair = appState.current;
 
+    appState.requestPermission(<Permission>[
+      Permission.storage,
+      Permission.accessMediaLocation,
+    ]);
+
     IconData icon;
     if (appState.favorites.contains(pair)) {
       icon = Icons.favorite;
@@ -145,7 +148,7 @@ class GeneratorPage extends StatelessWidget {
               SizedBox(width: 10),
               ElevatedButton(
                 onPressed: () {
-                  appState.requestPermission(Permission.manageExternalStorage);
+                  print(getPlaylistsAndAudio());
                   appState.getNext();
                 },
                 child: Text('Next'),
