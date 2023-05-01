@@ -2,50 +2,16 @@ import 'dart:async';
 
 import 'package:english_words/english_words.dart';
 import 'package:flutter/material.dart';
-import 'package:path/path.dart';
 import 'package:provider/provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-import 'package:m3u_playlist/models/playlist_model.dart';
-
 import 'package:m3u_playlist/utilities/file_utils.dart';
 import 'package:m3u_playlist/utilities/sql_utils.dart';
-import 'package:sqflite/sqflite.dart';
 
 void main() async {
   // Avoid errors caused by flutter upgrade.
   WidgetsFlutterBinding.ensureInitialized();
-
-  Database database = await openDatabase(
-    // Set the path to the database. Note: Using the `join` function from the
-    // `path` package is best practice to ensure the path is correctly
-    // constructed for each platform.
-    join(await getDatabasesPath(), 'm3u_playlist_data.db'),
-    // When the database is first created, create a table to store the models.
-    onCreate: (db, version) {
-      // Run the CREATE TABLE statement on the database.
-
-      // TODO: use json tag data instead of explicit tags for files?
-      return db.execute(
-        """
-        DROP TABLE IF EXISTS Playlist;
-        DROP TABLE IF EXISTS Audio;
-        DROP TABLE IF EXISTS Mp3ID3v1;
-
-        CREATE TABLE IF NOT EXISTS Playlist(path TEXT PRIMARY KEY);
-        CREATE TABLE IF NOT EXISTS Audio(id INTEGER PRIMARY KEY AUTOINCREMENT, path TEXT, type TEXT);
-        CREATE TABLE IF NOT EXISTS Mp3ID3v1(id INTEGER, title TEXT, artist TEXT,
-            album TEXT, year INTEGER, genre TEXT,
-            FOREIGN KEY(id) REFERENCES Audio(id))
-        """,
-      );
-    },
-    // Set the version. This executes the onCreate function and provides a
-    // path to perform database upgrades and downgrades.
-    version: 1,
-  );
-
-  await database.close();
+  loadDatabase();
 
   runApp(MyApp());
 }

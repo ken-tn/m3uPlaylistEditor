@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:m3u_playlist/models/playlist_model.dart';
 
-import 'mp3_utils.dart';
+import 'mp3_parser.dart';
 import 'playlist_utils.dart';
 
 const Map<String, Function> audioFileFormats = {

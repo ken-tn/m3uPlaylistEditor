@@ -1,12 +1,12 @@
 class Audio {
   final String path;
-  final String type;
+  final String filetype;
   // TODO: there should be a better way of doing this
   final dynamic audioObject;
 
   const Audio({
     required this.path,
-    required this.type,
+    required this.filetype,
     required this.audioObject,
   });
 
@@ -15,7 +15,7 @@ class Audio {
   Map<String, dynamic> toMap() {
     return {
       'path': path,
-      'type': type,
+      'filetype': filetype,
     };
   }
 }

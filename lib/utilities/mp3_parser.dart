@@ -7,5 +7,5 @@ Object toMP3(FileSystemEntity file) {
   var mp3 =
       const Mp3ID3v1(title: 'a', artist: 'a', album: 'a', year: 0, genre: 'a');
 
-  return Audio(path: file.path, type: 'Mp3ID3v1', audioObject: mp3);
+  return Audio(path: file.path, filetype: 'Mp3ID3v1', audioObject: mp3);
 }
