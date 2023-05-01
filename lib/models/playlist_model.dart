@@ -1,3 +1,5 @@
+import 'package:path/path.dart';
+
 class Playlist {
   final String path;
 
@@ -11,6 +13,10 @@ class Playlist {
     return {
       'path': path,
     };
+  }
+
+  String name() {
+    return basename(path);
   }
 
   @override

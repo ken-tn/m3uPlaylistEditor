@@ -40,7 +40,7 @@ List playlistsAndAudio() {
     }
   }
 
-  logger.d("Loaded Playlists and Audio");
+  logger.d("Asynchronously loading playlists and audio.");
   logger.d([playlists, songs]);
 
   return [playlists, songs];
