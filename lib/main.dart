@@ -37,6 +37,7 @@ class MyApp extends StatelessWidget {
 
 class MyAppState extends ChangeNotifier {
   var current = WordPair.random();
+  var musicData = playlistsAndAudio();
 
   void getNext() {
     current = WordPair.random();
@@ -59,14 +60,13 @@ class MyAppState extends ChangeNotifier {
     await permission.request();
   }
 
-  void updateMusicData() {
-    var musicData = playlistsAndAudio();
+  void updateMusicData() async {
     for (var playlist in musicData.elementAt(0)) {
       insertPlaylist(playlist);
     }
 
     for (var audio in musicData.elementAt(1)) {
-      insertAudio(audio);
+      insertAudio(await audio);
     }
   }
 }

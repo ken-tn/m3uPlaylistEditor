@@ -1,13 +1,14 @@
+import 'dart:convert';
+
 class Audio {
   final String path;
   final String filetype;
-  // TODO: there should be a better way of doing this
-  final dynamic audioObject;
+  final Map<String, Object> tags;
 
   const Audio({
     required this.path,
     required this.filetype,
-    required this.audioObject,
+    required this.tags,
   });
 
   // Convert a PlaylistFile into a Map. The keys must correspond to the names of the
@@ -16,6 +17,7 @@ class Audio {
     return {
       'path': path,
       'filetype': filetype,
+      'tags': json.encode(tags),
     };
   }
 }

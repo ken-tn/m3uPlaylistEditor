@@ -1,9 +1,14 @@
 import 'dart:io';
 
+import 'package:logger/logger.dart';
 import 'package:m3u_playlist/models/playlist_model.dart';
 
 import 'mp3_parser.dart';
 import 'playlist_utils.dart';
+
+final logger = Logger(
+  printer: PrettyPrinter(),
+);
 
 const Map<String, Function> audioFileFormats = {
   'mp3': toMP3,
@@ -34,6 +39,9 @@ List playlistsAndAudio() {
       playlists.add(toPlaylist(entity));
     }
   }
+
+  logger.d("Loaded Playlists and Audio");
+  logger.d([playlists, songs]);
 
   return [playlists, songs];
 }

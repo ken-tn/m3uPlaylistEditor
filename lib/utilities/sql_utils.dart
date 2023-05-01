@@ -1,11 +1,16 @@
 // Define a function that inserts dogs into the database
+import 'package:logger/logger.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
 import 'package:m3u_playlist/models/playlist_model.dart';
 import 'package:m3u_playlist/models/audio_model.dart';
 
-const databaseVersion = 2;
+var logger = Logger(
+  printer: PrettyPrinter(),
+);
+
+const databaseVersion = 4;
 const databaseName = 'm3u_playlist_data.db';
 
 Future<Database> connectToDatabase() async {
@@ -24,42 +29,33 @@ Future<Database> loadDatabase() async {
     // When the database is first created, create a table to store the models.
     // TODO: use json tag data instead of explicit tags for files?
     onCreate: (db, version) {
+      logger.d("Database: Creating database.");
       // Run the CREATE TABLE statement on the database.
       db.execute(
         'CREATE TABLE IF NOT EXISTS Playlist(path VARCHAR PRIMARY KEY);',
       );
       db.execute(
-        'CREATE TABLE IF NOT EXISTS Audio(path VARCHAR PRIMARY KEY, filetype VARCHAR);',
-      );
-      db.execute(
-        '''CREATE TABLE IF NOT EXISTS Mp3ID3v1(path VARCHAR PRIMARY KEY, title VARCHAR, artist VARCHAR,
-            album VARCHAR, year INTEGER, genre VARCHAR,
-            FOREIGN KEY(path) REFERENCES Audio(path));''',
+        'CREATE TABLE IF NOT EXISTS Audio(path VARCHAR PRIMARY KEY, filetype VARCHAR, tags VARCHAR);',
       );
     },
 
     onUpgrade: (db, oldVersion, newVersion) {
+      logger.d("Database: Updating database from $oldVersion to $newVersion.");
       db.execute(
         'DROP TABLE Playlist',
       );
       db.execute(
         'DROP TABLE Audio',
       );
-      db.execute(
-        'DROP TABLE Mp3ID3v1',
-      );
+      logger.d("Database: Dropped tables.");
 
       db.execute(
         'CREATE TABLE IF NOT EXISTS Playlist(path VARCHAR PRIMARY KEY);',
       );
       db.execute(
-        'CREATE TABLE IF NOT EXISTS Audio(path VARCHAR PRIMARY KEY, filetype VARCHAR);',
+        'CREATE TABLE IF NOT EXISTS Audio(path VARCHAR PRIMARY KEY, filetype VARCHAR, tags VARCHAR);',
       );
-      db.execute(
-        '''CREATE TABLE IF NOT EXISTS Mp3ID3v1(path VARCHAR PRIMARY KEY, title VARCHAR, artist VARCHAR,
-            album VARCHAR, year INTEGER, genre VARCHAR,
-            FOREIGN KEY(path) REFERENCES Audio(path));''',
-      );
+      logger.d("Database: Created new tables.");
     },
     // Set the version. This executes the onCreate function and provides a
     // path to perform database upgrades and downgrades.
@@ -88,21 +84,11 @@ Future<void> insertPlaylist(Playlist playlist) async {
 Future<void> insertAudio(Audio audio) async {
   connectToDatabase().then(
     (db) => {
-      db
-          .insert(
-            'Audio',
-            audio.toMap(),
-            conflictAlgorithm: ConflictAlgorithm.replace,
-          )
-          .then(
-            (value) => {
-              db.insert(
-                audio.filetype,
-                {'path': audio.path, ...audio.audioObject.toMap()},
-                conflictAlgorithm: ConflictAlgorithm.replace,
-              )
-            },
-          )
+      db.insert(
+        'Audio',
+        audio.toMap(),
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      )
     },
   );
 }

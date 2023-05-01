@@ -1,9 +1,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.github.ken_tn.m3u_playlist">
+    package="com.github.ken_tn.m3u_playlist"
+    xmlns:tools="http://schemas.android.com/tools">
     <uses-permission android:name="android.permission.ACCESS_MEDIA_LOCATION"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
                  android:maxSdkVersion="29"/>
+    <uses-sdk tools:overrideLibrary="com.arthenica.ffmpegkit.flutter" />
    <application
         android:requestLegacyExternalStorage="true"
         android:label="m3u_playlist"
