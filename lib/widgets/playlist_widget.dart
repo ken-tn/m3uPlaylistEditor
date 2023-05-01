@@ -31,8 +31,8 @@ class PlaylistWidget extends StatelessWidget {
                   playlist.name(),
                 ),
                 onTap: () {
-                  // TODO: move to editor screen
-                  print("ye");
+                  appState.updateSelectedPlaylist(playlist);
+                  appState.changeToPage(1);
                 },
               ),
           ],
