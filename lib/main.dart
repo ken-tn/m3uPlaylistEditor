@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:m3u_playlist/screens/main_app.dart';
+import 'package:m3u_playlist/widgets/main_app.dart';
 
 import 'package:m3u_playlist/utilities/sql_utils.dart';
 

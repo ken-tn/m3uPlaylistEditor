@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:m3u_playlist/screens/playlist_page.dart';
+import 'package:flutter/services.dart';
 import 'package:m3u_playlist/utilities/app_state.dart';
+import 'package:m3u_playlist/utilities/file_utils.dart';
+import 'package:m3u_playlist/widgets/playlist_widget.dart';
 import 'package:provider/provider.dart';
 
 class HomePage extends StatefulWidget {
@@ -14,25 +16,23 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     var appState = context.watch<AppState>();
-    var selectedPage = appState.selectedPage;
 
-    Widget page;
-    switch (selectedPage) {
-      case 0:
-        page = const PlaylistPage();
-        break;
-      case 1:
-        page = const Placeholder();
-        break;
-      default:
-        throw UnimplementedError('no widget for $selectedPage');
+    Future<void> _pullRefresh() async {
+      appState.updateMusicData();
     }
 
     return LayoutBuilder(builder: (context, constraints) {
       return Scaffold(
-        body: Container(
-          color: Theme.of(context).colorScheme.primaryContainer,
-          child: page,
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            // Add your onPressed code here!
+          },
+          backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+          child: const Icon(Icons.add),
+        ),
+        body: RefreshIndicator(
+          onRefresh: _pullRefresh,
+          child: const PlaylistWidget(),
         ),
       );
     });

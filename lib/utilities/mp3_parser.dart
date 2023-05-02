@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:ffmpeg_kit_flutter/ffmpeg_kit_config.dart';
 import 'package:ffmpeg_kit_flutter/ffprobe_kit.dart';
 import 'package:m3u_playlist/models/audio_model.dart';
 import 'package:logger/logger.dart';
@@ -12,6 +11,7 @@ var logger = Logger(
 Future<Audio> toMP3(FileSystemEntity file) async {
   return await FFprobeKit.getMediaInformation(file.path).then((session) async {
     final information = session.getMediaInformation();
+    logger.d(information);
 
     if (information == null) {
       // CHECK THE FOLLOWING ATTRIBUTES ON ERROR

@@ -5,14 +5,9 @@ import 'package:m3u_playlist/utilities/sql_utils.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class AppState extends ChangeNotifier {
-  var musicData = playlistsAndAudio();
-  var selectedPage = 0;
+  Future<List> musicData = playlistsAndAudio();
   late Playlist selectedPlaylist;
-
-  void changeToPage(int pageNumber) {
-    selectedPage = pageNumber;
-    notifyListeners();
-  }
+  bool isLoadingData = false;
 
   void updateSelectedPlaylist(Playlist playlist) {
     selectedPlaylist = playlist;
@@ -25,12 +20,17 @@ class AppState extends ChangeNotifier {
   }
 
   void updateMusicData() async {
-    for (var playlist in musicData.elementAt(0)) {
+    musicData = playlistsAndAudio();
+    notifyListeners();
+
+    List data = await musicData;
+
+    for (var playlist in data.elementAt(0)) {
       insertPlaylist(playlist);
     }
 
-    for (var audio in musicData.elementAt(1)) {
-      insertAudio(await audio);
+    for (var audio in data.elementAt(1)) {
+      insertAudio(audio);
     }
   }
 }

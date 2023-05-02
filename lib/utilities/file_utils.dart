@@ -1,10 +1,11 @@
 import 'dart:io';
 
 import 'package:logger/logger.dart';
+import 'package:m3u_playlist/models/audio_model.dart';
 import 'package:m3u_playlist/models/playlist_model.dart';
 
 import 'mp3_parser.dart';
-import 'playlist_utils.dart';
+import 'playlist_parser.dart';
 
 final logger = Logger(
   printer: PrettyPrinter(),
@@ -22,12 +23,12 @@ const Map<String, Function> audioFileFormats = {
 // '.wav',
 // '.opus',
 
-List playlistsAndAudio() {
+Future<List> playlistsAndAudio() async {
   Directory dir = Directory('/storage/emulated/0/');
   List<FileSystemEntity> files =
       dir.listSync(recursive: true, followLinks: false);
 
-  List<Object> songs = [];
+  List<Future<Audio>> songs = [];
   List<Playlist> playlists = [];
   for (FileSystemEntity entity in files) {
     audioFileFormats.forEach((fileType, parser) => {
@@ -42,6 +43,8 @@ List playlistsAndAudio() {
 
   logger.d("Asynchronously loading playlists and audio.");
   logger.d([playlists, songs]);
+  List<Audio> parsed = await Future.wait(songs);
+  logger.d("Parsed all audio");
 
-  return [playlists, songs];
+  return [playlists, parsed];
 }

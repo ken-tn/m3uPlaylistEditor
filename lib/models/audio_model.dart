@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:path/path.dart';
+
 class Audio {
   final String path;
   final String filetype;
@@ -10,6 +12,14 @@ class Audio {
     required this.filetype,
     required this.tags,
   });
+
+  String name() {
+    if (tags.containsKey('title')) {
+      return tags['title'] as String;
+    }
+
+    return basename(path);
+  }
 
   // Convert a PlaylistFile into a Map. The keys must correspond to the names of the
   // columns in the database.

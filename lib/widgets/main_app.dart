@@ -11,7 +11,7 @@ class MainApp extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (context) => AppState(),
       child: MaterialApp(
-        title: 'Namer App',
+        title: 'M3U Editor App',
         theme: ThemeData(
           brightness: Brightness.light,
         ),
@@ -21,7 +21,6 @@ class MainApp extends StatelessWidget {
           brightness: Brightness.dark,
         ),
         themeMode: ThemeMode.system,
-        debugShowCheckedModeBanner: false,
         home: const HomePage(),
       ),
     );
