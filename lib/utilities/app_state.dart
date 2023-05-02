@@ -14,11 +14,6 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> requestPermission(List<Permission> permission) async {
-    // Map<Permission, PermissionStatus> statuses = await permission.request();
-    await permission.request();
-  }
-
   void updateMusicData() async {
     musicData = playlistsAndAudio();
     notifyListeners();

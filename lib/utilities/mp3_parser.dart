@@ -11,7 +11,6 @@ var logger = Logger(
 Future<Audio> toMP3(FileSystemEntity file) async {
   return await FFprobeKit.getMediaInformation(file.path).then((session) async {
     final information = session.getMediaInformation();
-    logger.d(information);
 
     if (information == null) {
       // CHECK THE FOLLOWING ATTRIBUTES ON ERROR
