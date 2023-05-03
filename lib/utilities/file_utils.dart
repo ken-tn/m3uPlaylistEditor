@@ -39,23 +39,25 @@ Future<List> playlistsAndAudio() async {
   List<FileSystemEntity> files =
       dir.listSync(recursive: true, followLinks: false);
 
-  List<Future<Audio>> songs = [];
+  List<Audio> songs = [];
   List<Playlist> playlists = [];
-  for (FileSystemEntity entity in files) {
-    audioFileFormats.forEach((fileType, parser) => {
-          if (entity.path.endsWith(fileType)) {songs.add(parser(entity))}
-        });
-
-    // add playlists
+  logger.d("Asynchronously loading playlists and audio.");
+  await Future.forEach(files, (entity) async {
+    for (var entry in audioFileFormats.entries) {
+      if (entity.path.endsWith(entry.key)) {
+        songs.add(await entry.value(entity));
+      }
+    }
     if (entity.path.endsWith('.m3u')) {
       playlists.add(toPlaylist(entity));
     }
-  }
+  });
 
-  logger.d("Asynchronously loading playlists and audio.");
+  // List<Audio> songs = [];
+  // await Future.forEach(unresolved, (element) async => songs.add(await element));
+
   logger.d([playlists, songs]);
-  List<Audio> parsed = await Future.wait(songs);
   logger.d("Parsed all audio");
 
-  return [playlists, parsed];
+  return [playlists, songs];
 }

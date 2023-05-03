@@ -9,30 +9,33 @@ var logger = Logger(
 );
 
 Future<Audio> toMP3(FileSystemEntity file) async {
-  return await FFprobeKit.getMediaInformation(file.path).then((session) async {
-    final information = session.getMediaInformation();
+  final path = file.path;
+  final session = await FFprobeKit.getMediaInformation(path);
+  final information = session.getMediaInformation();
 
-    if (information == null) {
-      // CHECK THE FOLLOWING ATTRIBUTES ON ERROR
-      final returnCode = await session.getReturnCode();
-      final failStackTrace = await session.getFailStackTrace();
-      logger.d(returnCode, failStackTrace);
-    } else {
-      final format = information.getFormatProperties();
-      if (format != null) {
-        logger.d(format['tags']);
-        return Audio(
-          path: file.path,
-          filetype: 'Mp3',
-          tags: Map<String, Object>.from(format['tags']),
-        );
-      }
-    }
-
+  if (information == null) {
+    // CHECK THE FOLLOWING ATTRIBUTES ON ERROR
+    logger.d("Failed to get information on $file.");
+    final returnCode = session.getReturnCode();
+    final failStackTrace = session.getFailStackTrace();
+    logger.d(returnCode, failStackTrace);
     return Audio(
       path: file.path,
       filetype: 'Mp3',
       tags: {},
     );
-  });
+  }
+
+  final format = information.getFormatProperties();
+  if (format != null) {
+    final tags = format['tags'];
+    logger.d(tags);
+    return Audio(
+      path: file.path,
+      filetype: 'Mp3',
+      tags: Map<String, Object>.from(tags),
+    );
+  }
+
+  throw Exception();
 }
