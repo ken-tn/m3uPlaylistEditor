@@ -1,5 +1,10 @@
+import 'package:logger/logger.dart';
 import 'package:m3u_playlist/models/audio_model.dart';
 import 'package:path/path.dart';
+
+var logger = Logger(
+  printer: PrettyPrinter(),
+);
 
 class Playlist {
   final String path;
@@ -18,25 +23,86 @@ class Playlist {
     };
   }
 
-  Map<String, Audio> mapToAudio(List<Audio> loadedSongs) {
-    Map<String, Audio> mapped = {};
+  List<Audio> toList(List<Audio> loadedSongs) {
+    List<Audio> mapped = [];
 
     for (String path in songs) {
+      bool found = false;
       for (Audio loadedAudio in loadedSongs) {
         if (path == loadedAudio.path) {
-          mapped.addAll({path: loadedAudio});
-          continue;
-        }
+          found = true;
+          mapped.add(loadedAudio);
 
+          break;
+        }
+      }
+
+      if (!found) {
         // no audio found, add null entry
-        mapped.addAll({
-          path: Audio(
-              path: path, filetype: extension(path), tags: {'isMissing': true})
-        });
+        mapped.add(Audio(
+          path: path,
+          filetype: extension(path),
+          tags: {'isMissing': true},
+        ));
       }
     }
 
     return mapped;
+  }
+
+  bool add(String path) {
+    for (String song in songs) {
+      if (song == path) {
+        return false;
+      }
+    }
+
+    songs.add(path);
+    return true;
+  }
+
+  bool remove(String path) {
+    for (String song in songs) {
+      if (song == path) {
+        songs.remove(song);
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  bool swap(int oldIndex, int newIndex) {
+    if (oldIndex < newIndex) {
+      // removing the item at oldIndex will shorten the list by 1.
+      newIndex -= 1;
+    }
+
+    if ((oldIndex < 0 || oldIndex > songs.length - 1) ||
+        (newIndex < 0 || newIndex > songs.length - 1)) {
+      logger.d('failed to swap: $oldIndex, $newIndex');
+      return false;
+    }
+    logger.d('swapping $oldIndex with $newIndex');
+
+    final String old = songs[oldIndex];
+    if (oldIndex < newIndex) {
+      // shift everything back
+      for (var i = oldIndex; i < newIndex; i++) {
+        songs[i] = songs[i + 1];
+      }
+
+      songs[newIndex] = old;
+    } else {
+      // shift everything forward
+      for (var i = oldIndex; i > newIndex; i--) {
+        songs[i] = songs[i - 1];
+      }
+
+      songs[newIndex] = old;
+    }
+
+    return true;
   }
 
   String name() {

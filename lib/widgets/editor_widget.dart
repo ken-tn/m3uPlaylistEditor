@@ -4,9 +4,16 @@ import 'package:m3u_playlist/models/playlist_model.dart';
 import 'package:m3u_playlist/utilities/app_state.dart';
 import 'package:provider/provider.dart';
 
-class EditorWidget extends StatelessWidget {
-  const EditorWidget({super.key});
+class EditorWidget extends StatefulWidget {
+  const EditorWidget({
+    super.key,
+  });
 
+  @override
+  State<EditorWidget> createState() => _EditorWidget();
+}
+
+class _EditorWidget extends State<EditorWidget> {
   @override
   Widget build(BuildContext context) {
     var appState = context.watch<AppState>();
@@ -14,9 +21,9 @@ class EditorWidget extends StatelessWidget {
         future: appState.musicData,
         builder: (context, AsyncSnapshot<List<dynamic>> snapshot) {
           if (snapshot.hasData) {
-            List<Audio> songs = snapshot.data![1];
-            Map<String, Audio> loadedSongs =
-                appState.selectedPlaylist.mapToAudio(songs);
+            List<Audio> _songs = snapshot.data![1];
+            Playlist _selectedPlaylist = appState.selectedPlaylist;
+            List<Audio> _loadedSongs = _selectedPlaylist.toList(_songs);
 
             return SafeArea(
               child: Row(
@@ -27,31 +34,50 @@ class EditorWidget extends StatelessWidget {
                         const Padding(
                           padding: EdgeInsets.all(2),
                         ),
-                        for (var audio in songs)
+                        for (var audio in _songs)
                           ListTile(
                             leading: const Icon(Icons.music_note),
                             title: Text(
                               audio.name(),
                             ),
-                            onTap: () {},
+                            onTap: () {
+                              _selectedPlaylist.add(audio.path);
+                              setState(() => {
+                                    _loadedSongs =
+                                        _selectedPlaylist.toList(_songs)
+                                  });
+                            },
                           ),
                       ],
                     ),
                   ),
                   Expanded(
-                    child: ListView(
+                    child: ReorderableListView(
+                      onReorder: (oldIndex, newIndex) => {
+                        _selectedPlaylist.swap(oldIndex, newIndex),
+                        print(_loadedSongs),
+                        print(_selectedPlaylist.songs),
+                        setState(() =>
+                            {_loadedSongs = _selectedPlaylist.toList(_songs)})
+                      },
+                      padding: const EdgeInsets.all(10),
                       children: [
-                        const Padding(
-                          padding: EdgeInsets.all(2),
-                        ),
-                        for (var entry in loadedSongs.entries)
+                        for (Audio audio in _loadedSongs)
                           ListTile(
-                            enabled: entry.value.tags.containsKey('isMissing')
-                                ? false
-                                : true,
+                            key: ValueKey(audio),
+                            textColor: audio.tags.containsKey('isMissing')
+                                ? Theme.of(context).colorScheme.errorContainer
+                                : Theme.of(context).textTheme.bodyMedium!.color,
                             leading: const Icon(Icons.music_note),
-                            title: Text(entry.value.name()),
-                            onTap: () {},
+                            title: Text(audio.name()),
+                            onTap: () {
+                              if (_selectedPlaylist.remove(audio.path)) {
+                                setState(() => {
+                                      _loadedSongs =
+                                          _selectedPlaylist.toList(_songs)
+                                    });
+                              }
+                            },
                           ),
                       ],
                     ),
