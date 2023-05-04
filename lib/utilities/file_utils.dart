@@ -43,13 +43,16 @@ Future<List> playlistsAndAudio() async {
   List<Playlist> playlists = [];
   logger.d("Asynchronously loading playlists and audio.");
   await Future.forEach(files, (entity) async {
+    // apply parser to matching file format
     for (var entry in audioFileFormats.entries) {
       if (entity.path.endsWith(entry.key)) {
         songs.add(await entry.value(entity));
       }
     }
+
+    // parse playlist
     if (entity.path.endsWith('.m3u')) {
-      playlists.add(toPlaylist(entity));
+      playlists.add(await toPlaylist(entity));
     }
   });
 
