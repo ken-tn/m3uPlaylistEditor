@@ -80,10 +80,10 @@ class Playlist {
 
     if ((oldIndex < 0 || oldIndex > songs.length - 1) ||
         (newIndex < 0 || newIndex > songs.length - 1)) {
-      logger.d('failed to swap: $oldIndex, $newIndex');
+      logger.d('Playlist failed to move: $oldIndex to $newIndex.');
       return false;
     }
-    logger.d('swapping $oldIndex with $newIndex');
+    logger.d('Playlist moving $oldIndex to $newIndex');
 
     final String old = songs[oldIndex];
     if (oldIndex < newIndex) {
