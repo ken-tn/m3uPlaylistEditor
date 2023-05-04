@@ -55,8 +55,6 @@ class _EditorWidget extends State<EditorWidget> {
                     child: ReorderableListView(
                       onReorder: (oldIndex, newIndex) => {
                         _selectedPlaylist.swap(oldIndex, newIndex),
-                        print(_loadedSongs),
-                        print(_selectedPlaylist.songs),
                         setState(() =>
                             {_loadedSongs = _selectedPlaylist.toList(_songs)})
                       },
