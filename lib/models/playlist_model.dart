@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:logger/logger.dart';
 import 'package:m3u_playlist/models/audio_model.dart';
 import 'package:path/path.dart';
@@ -107,6 +109,19 @@ class Playlist {
 
   String name() {
     return basename(path);
+  }
+
+  Future<File> save(List<Audio> songs) async {
+    logger.d("Attempting to save.");
+    String output = '';
+    for (Audio song in songs) {
+      output += '${song.path}\n';
+    }
+
+    // remove file endline
+    output = output.substring(0, output.length - 1);
+    logger.d('Saving playlist\n$output');
+    return await File(path).writeAsString(output);
   }
 
   @override
