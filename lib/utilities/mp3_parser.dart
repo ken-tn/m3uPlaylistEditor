@@ -19,9 +19,9 @@ Future<Audio> toMP3(FileSystemEntity file) async {
   // check the database first
   List results = await findAudio(file.path);
   if (results.isNotEmpty) {
+    logger.d("Loading database entry for $file");
     var entry = results[0].row;
 
-    logger.d("Loading database entry for $file");
     return Audio(
         path: entry[0],
         filetype: entry[1],

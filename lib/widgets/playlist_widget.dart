@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:m3u_playlist/models/playlist_model.dart';
 import 'package:m3u_playlist/screens/editor_page.dart';
 import 'package:m3u_playlist/utilities/app_state.dart';
 import 'package:provider/provider.dart';
@@ -14,7 +17,49 @@ class PlaylistWidget extends StatefulWidget {
   State<PlaylistWidget> createState() => _PlaylistWidget();
 }
 
+void _onRenameClick(Playlist playlist) {
+  //File p = File(playlist.path).rename(newPath);
+}
+
+const Map<String, Function> buttons = {
+  'Rename': _onRenameClick,
+};
+
 class _PlaylistWidget extends State<PlaylistWidget> {
+  void showAction(BuildContext context, var playlist) {
+    showDialog<void>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          content: Stack(
+            children: [
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text("${playlist.name()}"),
+                  ),
+                  for (var entry in buttons.entries)
+                    ListTile(
+                      title: Text(entry.key),
+                      onTap: () => entry.value(playlist),
+                    ),
+                ],
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Close'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     var appState = context.watch<AppState>();
@@ -37,24 +82,26 @@ class _PlaylistWidget extends State<PlaylistWidget> {
                 padding: const EdgeInsets.all(20),
                 child: Text('You have ${playlists.length} playlists: '),
               ),
-              for (var playlist in playlists)
+              for (Playlist playlist in playlists)
                 ListTile(
                   leading: const Icon(Icons.music_note),
                   title: Text(
                     playlist.name(),
                   ),
+                  subtitle: Text('${playlist.songs.length} songs'),
                   onTap: () {
                     appState.updateSelectedPlaylist(playlist);
                     Navigator.of(context).push(_editorRoute());
+                  },
+                  onLongPress: () {
+                    showAction(context, playlist);
                   },
                 ),
             ],
           ),
         );
       } else {
-        return const Center(
-          child: Text('Loading data...'),
-        );
+        return const Center(child: CircularProgressIndicator());
       }
     });
   }

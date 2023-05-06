@@ -29,9 +29,30 @@ Future<void> _requestPermission(List<Permission> permission) async {
   await permission.request();
 }
 
+Future<File> createPlaylistFile(String name) async {
+  await _requestPermission(<Permission>[
+    Permission.storage,
+    Permission.manageExternalStorage,
+    Permission.accessMediaLocation,
+  ]);
+
+  Directory dir = Directory('/storage/emulated/0/Playlists');
+  if (!dir.existsSync()) {
+    dir = await Directory(dir.path).create();
+  }
+  File playlistFile = File('${dir.path}/$name.m3u');
+  if (!playlistFile.existsSync()) {
+    playlistFile = await File(playlistFile.path).create();
+  } else {
+    return playlistFile;
+  }
+  return await playlistFile.writeAsString('');
+}
+
 Future<List> playlistsAndAudio() async {
   await _requestPermission(<Permission>[
     Permission.storage,
+    Permission.manageExternalStorage,
     Permission.accessMediaLocation,
   ]);
 
