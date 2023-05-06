@@ -137,7 +137,7 @@ class _EditorWidget extends State<EditorWidget> {
           ),
         );
       } else {
-        return const CircularProgressIndicator();
+        return const Center(child: CircularProgressIndicator());
       }
     });
   }
