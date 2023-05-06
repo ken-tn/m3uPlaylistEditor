@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:m3u_playlist/models/audio_model.dart';
 import 'package:m3u_playlist/models/playlist_model.dart';
@@ -43,12 +45,34 @@ class _EditorWidget extends State<EditorWidget> {
               Expanded(
                 child: ListView(
                   children: [
-                    const Padding(
-                      padding: EdgeInsets.all(2),
+                    Padding(
+                      padding: const EdgeInsets.all(3),
+                      child: Text('You have ${loadedSongs.length} songs: '),
                     ),
                     for (var audio in songs)
                       ListTile(
-                        leading: const Icon(Icons.music_note),
+                        subtitle: audio.tags.containsKey('artist')
+                            ? Text(audio.tags['artist'] as String)
+                            : const Text('Unknown artist'),
+                        leading: audio.tags.containsKey('cover')
+                            ? Container(
+                                decoration: const BoxDecoration(
+                                  color: Colors.white,
+                                  shape: BoxShape.circle,
+                                  boxShadow: [
+                                    BoxShadow(
+                                        blurRadius: 10,
+                                        color: Colors.black,
+                                        spreadRadius: 1)
+                                  ],
+                                ),
+                                child: CircleAvatar(
+                                  backgroundImage: Image.file(
+                                    File(audio.tags['cover'] as String),
+                                  ).image,
+                                ),
+                              )
+                            : const Icon(Icons.music_note),
                         title: Text(
                           audio.name(),
                         ),
@@ -67,6 +91,7 @@ class _EditorWidget extends State<EditorWidget> {
                     selectedPlaylist.swap(oldIndex, newIndex),
                     updateState(),
                   },
+                  header: Text('${selectedPlaylist.name()}: 2 songs'),
                   padding: const EdgeInsets.all(5),
                   children: [
                     for (Audio audio in loadedSongs)
@@ -74,8 +99,29 @@ class _EditorWidget extends State<EditorWidget> {
                         key: ValueKey(audio),
                         textColor: audio.tags.containsKey('isMissing')
                             ? Theme.of(context).colorScheme.errorContainer
-                            : Theme.of(context).textTheme.bodyMedium!.color,
-                        leading: const Icon(Icons.music_note),
+                            : null,
+                        subtitle: audio.tags.containsKey('artist')
+                            ? Text(audio.tags['artist'] as String)
+                            : const Text('Unknown artist'),
+                        leading: audio.tags.containsKey('cover')
+                            ? Container(
+                                decoration: const BoxDecoration(
+                                  color: Colors.white,
+                                  shape: BoxShape.circle,
+                                  boxShadow: [
+                                    BoxShadow(
+                                        blurRadius: 10,
+                                        color: Colors.black,
+                                        spreadRadius: 1)
+                                  ],
+                                ),
+                                child: CircleAvatar(
+                                  backgroundImage: Image.file(
+                                    File(audio.tags['cover'] as String),
+                                  ).image,
+                                ),
+                              )
+                            : const Icon(Icons.music_note),
                         title: Text(audio.name()),
                         onTap: () {
                           if (selectedPlaylist.remove(audio.path)) {
