@@ -47,7 +47,7 @@ class _EditorWidget extends State<EditorWidget> {
                   children: [
                     Padding(
                       padding: const EdgeInsets.all(3),
-                      child: Text('You have ${loadedSongs.length} songs: '),
+                      child: Text('You have ${songs.length} songs: '),
                     ),
                     for (var audio in songs)
                       ListTile(
