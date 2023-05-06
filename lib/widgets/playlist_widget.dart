@@ -53,16 +53,7 @@ class _PlaylistWidget extends State<PlaylistWidget> {
           ),
         );
       } else {
-        return Center(
-          child: Row(
-            children: const [
-              Text(
-                "Loading data, this shouldn't take more than two minutes...",
-              ),
-              CircularProgressIndicator()
-            ],
-          ),
-        );
+        return const Center(child: CircularProgressIndicator());
       }
     });
   }
