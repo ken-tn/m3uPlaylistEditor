@@ -32,6 +32,7 @@ Future<void> _requestPermission(List<Permission> permission) async {
 Future<File> createPlaylistFile(String name) async {
   await _requestPermission(<Permission>[
     Permission.storage,
+    Permission.manageExternalStorage,
     Permission.accessMediaLocation,
   ]);
 
@@ -51,6 +52,7 @@ Future<File> createPlaylistFile(String name) async {
 Future<List> playlistsAndAudio() async {
   await _requestPermission(<Permission>[
     Permission.storage,
+    Permission.manageExternalStorage,
     Permission.accessMediaLocation,
   ]);
 

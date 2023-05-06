@@ -20,11 +20,11 @@ class AppState extends ChangeNotifier {
     List data = await musicData;
 
     for (var playlist in data.elementAt(0)) {
-      insertPlaylist(playlist);
+      await insertPlaylist(playlist);
     }
 
     for (var audio in data.elementAt(1)) {
-      insertAudio(audio);
+      await insertAudio(audio);
     }
   }
 }

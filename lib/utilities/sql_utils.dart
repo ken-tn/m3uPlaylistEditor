@@ -73,26 +73,26 @@ Future<List> findAudio(String path) async {
     whereArgs: [path],
   );
 
-  logger.d('Query complete: findAudio($path)');
+  logger.d('Query complete: findAudio($path) | $result');
   return result;
 }
 
-Future<void> insertPlaylist(Playlist playlist) async {
+Future<int> insertPlaylist(Playlist playlist) async {
   // Insert the Playlist into the correct table. You might also specify the
   // `conflictAlgorithm` to use in case the same Playlist is inserted twice.
   //
   // In this case, replace any previous data.
   Database db = await connectToDatabase();
-  db.insert(
+  return await db.insert(
     'Playlist',
     playlist.toMap(),
     conflictAlgorithm: ConflictAlgorithm.replace,
   );
 }
 
-Future<void> insertAudio(Audio audio) async {
+Future<int> insertAudio(Audio audio) async {
   Database db = await connectToDatabase();
-  db.insert(
+  return await db.insert(
     'Audio',
     audio.toMap(),
     conflictAlgorithm: ConflictAlgorithm.replace,
