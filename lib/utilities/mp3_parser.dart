@@ -1,9 +1,11 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:ffmpeg_kit_flutter/ffmpeg_kit.dart';
 import 'package:ffmpeg_kit_flutter/ffprobe_kit.dart';
 import 'package:m3u_playlist/models/audio_model.dart';
 import 'package:logger/logger.dart';
+import 'package:m3u_playlist/utilities/sql_utils.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:uuid/uuid.dart';
 
@@ -14,6 +16,18 @@ var logger = Logger(
 const uuid = Uuid();
 
 Future<Audio> toMP3(FileSystemEntity file) async {
+  // check the database first
+  List results = await findAudio(file.path);
+  if (results.isNotEmpty) {
+    var entry = results[0].row;
+
+    logger.d("Loading database entry for $file");
+    return Audio(
+        path: entry[0],
+        filetype: entry[1],
+        tags: json.decode(entry[2]) as Map<String, dynamic>);
+  }
+
   Directory documentsDirectory = await getApplicationDocumentsDirectory();
   String coverPath = documentsDirectory.path;
   String imageUUID = uuid.v4();

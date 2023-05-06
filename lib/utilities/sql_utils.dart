@@ -27,7 +27,6 @@ Future<Database> loadDatabase() async {
     // constructed for each platform.
     join(await getDatabasesPath(), 'm3u_playlist_data.db'),
     // When the database is first created, create a table to store the models.
-    // TODO: use json tag data instead of explicit tags for files?
     onCreate: (db, version) {
       logger.d("Database: Creating database.");
       // Run the CREATE TABLE statement on the database.
@@ -65,30 +64,37 @@ Future<Database> loadDatabase() async {
   return db;
 }
 
+Future<List> findAudio(String path) async {
+  Database db = await connectToDatabase();
+  List result = await db.query(
+    'Audio',
+    columns: ['path', 'filetype', 'tags'],
+    where: 'path = ?',
+    whereArgs: [path],
+  );
+
+  logger.d('Query complete: findAudio($path)');
+  return result;
+}
+
 Future<void> insertPlaylist(Playlist playlist) async {
   // Insert the Playlist into the correct table. You might also specify the
   // `conflictAlgorithm` to use in case the same Playlist is inserted twice.
   //
   // In this case, replace any previous data.
-  connectToDatabase().then(
-    (db) => {
-      db.insert(
-        'Playlist',
-        playlist.toMap(),
-        conflictAlgorithm: ConflictAlgorithm.replace,
-      )
-    },
+  Database db = await connectToDatabase();
+  db.insert(
+    'Playlist',
+    playlist.toMap(),
+    conflictAlgorithm: ConflictAlgorithm.replace,
   );
 }
 
 Future<void> insertAudio(Audio audio) async {
-  connectToDatabase().then(
-    (db) => {
-      db.insert(
-        'Audio',
-        audio.toMap(),
-        conflictAlgorithm: ConflictAlgorithm.replace,
-      )
-    },
+  Database db = await connectToDatabase();
+  db.insert(
+    'Audio',
+    audio.toMap(),
+    conflictAlgorithm: ConflictAlgorithm.replace,
   );
 }

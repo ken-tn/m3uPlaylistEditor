@@ -5,7 +5,7 @@ import 'package:path/path.dart';
 class Audio {
   final String path;
   final String filetype;
-  final Map<String, Object> tags;
+  final Map<String, dynamic> tags;
 
   const Audio({
     required this.path,
