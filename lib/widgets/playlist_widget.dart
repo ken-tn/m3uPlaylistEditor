@@ -43,6 +43,7 @@ class _PlaylistWidget extends State<PlaylistWidget> {
                   title: Text(
                     playlist.name(),
                   ),
+                  subtitle: Text('${playlist.songs.length} songs'),
                   onTap: () {
                     appState.updateSelectedPlaylist(playlist);
                     Navigator.of(context).push(_editorRoute());
