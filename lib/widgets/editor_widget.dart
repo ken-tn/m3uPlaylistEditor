@@ -91,7 +91,8 @@ class _EditorWidget extends State<EditorWidget> {
                     selectedPlaylist.swap(oldIndex, newIndex),
                     updateState(),
                   },
-                  header: Text('${selectedPlaylist.name()}: 2 songs'),
+                  header: Text(
+                      '${selectedPlaylist.name()}: ${selectedPlaylist.songs.length} songs'),
                   padding: const EdgeInsets.all(5),
                   children: [
                     for (Audio audio in loadedSongs)
