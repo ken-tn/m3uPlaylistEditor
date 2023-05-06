@@ -10,7 +10,7 @@ var logger = Logger(
   printer: PrettyPrinter(),
 );
 
-const databaseVersion = 5;
+const databaseVersion = 6;
 const databaseName = 'm3u_playlist_data.db';
 
 Future<Database> connectToDatabase() async {
