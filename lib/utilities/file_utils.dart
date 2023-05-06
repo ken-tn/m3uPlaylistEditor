@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:logger/logger.dart';
 import 'package:m3u_playlist/models/audio_model.dart';
 import 'package:m3u_playlist/models/playlist_model.dart';
+import 'package:m3u_playlist/utilities/sql_utils.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import 'mp3_parser.dart';
@@ -82,6 +83,9 @@ Future<List> playlistsAndAudio() async {
 
   logger.d([playlists, songs]);
   logger.d("Parsed all audio");
+
+  Future.forEach(playlists, (element) => insertPlaylist(element));
+  Future.forEach(songs, (element) => insertAudio(element));
 
   return [playlists, songs];
 }
