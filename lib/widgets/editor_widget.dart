@@ -21,6 +21,8 @@ class EditorWidget extends StatefulWidget {
 }
 
 class _EditorWidget extends State<EditorWidget> {
+  ScrollController myScrollController = ScrollController();
+
   @override
   Widget build(BuildContext context) {
     var appState = context.watch<AppState>();
@@ -78,6 +80,10 @@ class _EditorWidget extends State<EditorWidget> {
                         ),
                         onTap: () {
                           if (selectedPlaylist.add(audio.path)) {
+                            myScrollController.animateTo(
+                                72.0 * (selectedPlaylist.songs.length + 1),
+                                duration: const Duration(milliseconds: 500),
+                                curve: Curves.easeOut);
                             updateState();
                           }
                         },
@@ -87,6 +93,7 @@ class _EditorWidget extends State<EditorWidget> {
               ),
               Expanded(
                 child: ReorderableListView(
+                  scrollController: myScrollController,
                   onReorder: (oldIndex, newIndex) => {
                     selectedPlaylist.swap(oldIndex, newIndex),
                     updateState(),
