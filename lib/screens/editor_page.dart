@@ -15,7 +15,7 @@ class EditorPage extends StatefulWidget {
 
 // function defined in the state class
 void sortItems(String value) {}
-const List<String> dropDown = <String>['Modified', 'Artist', 'Title'];
+const List<String> dropDown = <String>['Modified', 'Artist', 'Title', 'Album'];
 
 class _EditorPage extends State<EditorPage> {
   var logger = Logger(

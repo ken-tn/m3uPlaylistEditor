@@ -46,6 +46,9 @@ class _EditorWidget extends State<EditorWidget> {
           case 'Title':
             songs.sort((a, b) => a.compareTitle(b));
             break;
+          case 'Album':
+            songs.sort((a, b) => a.compareAlbum(b));
+            break;
           default:
             break;
         }

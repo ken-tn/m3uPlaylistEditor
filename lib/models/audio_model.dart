@@ -63,8 +63,35 @@ class Audio {
       }
     }
 
-    return tags['artist']
+    int artistCompare = tags['artist']
         .toLowerCase()
         .compareTo(other.tags['artist'].toLowerCase());
+
+    // apply album sort
+    if (artistCompare == 0) {
+      return compareAlbum(other);
+    }
+
+    return artistCompare;
+  }
+
+  int compareAlbum(Audio other) {
+    bool hasAlbum = tags.containsKey('album');
+    bool otherHasAlbum = other.tags.containsKey('album');
+
+    // has album?
+    if (!hasAlbum || !otherHasAlbum) {
+      if (!otherHasAlbum && !hasAlbum) {
+        return 0;
+      } else if (otherHasAlbum && !hasAlbum) {
+        return -1;
+      } else if (!otherHasAlbum && hasAlbum) {
+        return 1;
+      }
+    }
+
+    return tags['album']
+        .toLowerCase()
+        .compareTo(other.tags['album'].toLowerCase());
   }
 }
