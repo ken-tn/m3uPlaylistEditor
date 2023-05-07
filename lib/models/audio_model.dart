@@ -69,7 +69,11 @@ class Audio {
 
     // apply album sort
     if (artistCompare == 0) {
-      return compareAlbum(other);
+      int albumCompare = compareAlbum(other);
+      if (albumCompare == 0) {
+        return compareTrack(other);
+      }
+      return albumCompare;
     }
 
     return artistCompare;
@@ -90,8 +94,38 @@ class Audio {
       }
     }
 
-    return tags['album']
+    int albumCompare = tags['album']
         .toLowerCase()
         .compareTo(other.tags['album'].toLowerCase());
+
+    if (albumCompare == 0) {
+      return compareTrack(other);
+    }
+    return albumCompare;
+  }
+
+  int compareTrack(Audio other) {
+    bool hasTrackNo = tags.containsKey('track');
+    bool otherHasTrackNo = other.tags.containsKey('track');
+
+    if (!hasTrackNo || !otherHasTrackNo) {
+      if (!otherHasTrackNo && !hasTrackNo) {
+        return 0;
+      } else if (!otherHasTrackNo && hasTrackNo) {
+        return -1;
+      } else if (otherHasTrackNo && !hasTrackNo) {
+        return 1;
+      }
+    }
+
+    /*
+    get first number from track
+    track examples: 4/13, 4
+    */
+
+    final firstInt = RegExp('^[0-9]+');
+    return int.parse(firstInt.firstMatch(tags['track'])?.group(0) as String)
+        .compareTo(int.parse(
+            firstInt.firstMatch(other.tags['track'])?.group(0) as String));
   }
 }
