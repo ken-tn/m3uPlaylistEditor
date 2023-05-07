@@ -30,4 +30,33 @@ class Audio {
       'tags': json.encode(tags),
     };
   }
+
+  int compareTitle(Audio other) {
+    String title = tags.containsKey('title') ? tags['title'] : basename(path);
+    String otherTitle = other.tags.containsKey('title')
+        ? other.tags['title']
+        : basename(other.path);
+
+    return title.toLowerCase().compareTo(otherTitle.toLowerCase());
+  }
+
+  int compareArtist(Audio other) {
+    bool hasArtist = tags.containsKey('artist');
+    bool otherHasArtist = other.tags.containsKey('artist');
+
+    // has artist?
+    if (!hasArtist || !otherHasArtist) {
+      if (!otherHasArtist && !hasArtist) {
+        return 0;
+      } else if (otherHasArtist && !hasArtist) {
+        return -1;
+      } else if (!otherHasArtist && hasArtist) {
+        return 1;
+      }
+    }
+
+    return tags['artist']
+        .toLowerCase()
+        .compareTo(other.tags['artist'].toLowerCase());
+  }
 }

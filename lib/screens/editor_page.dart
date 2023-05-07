@@ -13,16 +13,22 @@ class EditorPage extends StatefulWidget {
   State<EditorPage> createState() => _EditorPage();
 }
 
+// function defined in the state class
+void sortItems(String value) {}
+const List<String> dropDown = <String>['None', 'Artist', 'Title', 'Date'];
+
 class _EditorPage extends State<EditorPage> {
   var logger = Logger(
     printer: PrettyPrinter(),
   );
   List<Audio> songs = [];
+  String dropdownValue = dropDown.first;
 
   @override
   Widget build(BuildContext context) {
     var appState = context.watch<AppState>();
     var musicData = appState.musicData;
+
     SystemChrome.setPreferredOrientations([DeviceOrientation.landscapeLeft]);
 
     return FutureBuilder<List>(
@@ -41,10 +47,30 @@ class _EditorPage extends State<EditorPage> {
             },
             child: Scaffold(
               appBar: AppBar(
+                title: Row(children: [
+                  const Padding(padding: EdgeInsets.all(20.0)),
+                  DropdownButton(
+                      value: dropdownValue,
+                      icon: const Icon(Icons.sort, color: Colors.white),
+                      items: dropDown.map<DropdownMenuItem<String>>(
+                        (String value) {
+                          return DropdownMenuItem<String>(
+                            value: value,
+                            child: Text(value),
+                          );
+                        },
+                      ).toList(),
+                      onChanged: (String? value) {
+                        // This is called when the user selects an item.
+                        setState(() {
+                          dropdownValue = value!;
+                        });
+                      }),
+                ]),
                 actions: [
                   IconButton(
                     icon: const Icon(Icons.save),
-                    tooltip: 'Open shopping cart',
+                    tooltip: 'Save',
                     onPressed: () {
                       if (songs.isEmpty) {
                         logger.d("Playlist is empty, not saving.");

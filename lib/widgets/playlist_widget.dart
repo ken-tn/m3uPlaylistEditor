@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:m3u_playlist/models/playlist_model.dart';
 import 'package:m3u_playlist/screens/editor_page.dart';

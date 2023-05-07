@@ -33,6 +33,7 @@ class _EditorWidget extends State<EditorWidget> {
         Playlist selectedPlaylist = appState.selectedPlaylist;
         List<Audio> loadedSongs = selectedPlaylist.toList(songs);
         widget.onSave(loadedSongs);
+        songs.sort((a, b) => a.compareArtist(b));
 
         void updateState() {
           setState(
