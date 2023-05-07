@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:path/path.dart';
 
@@ -29,6 +30,13 @@ class Audio {
       'filetype': filetype,
       'tags': json.encode(tags),
     };
+  }
+
+  int compareDateModified(Audio other) {
+    File file = File(path);
+    File otherFile = File(other.path);
+
+    return file.lastModifiedSync().compareTo(otherFile.lastAccessedSync());
   }
 
   int compareTitle(Audio other) {

@@ -15,7 +15,7 @@ class EditorPage extends StatefulWidget {
 
 // function defined in the state class
 void sortItems(String value) {}
-const List<String> dropDown = <String>['None', 'Artist', 'Title', 'Date'];
+const List<String> dropDown = <String>['Modified', 'Artist', 'Title'];
 
 class _EditorPage extends State<EditorPage> {
   var logger = Logger(
@@ -48,10 +48,18 @@ class _EditorPage extends State<EditorPage> {
             child: Scaffold(
               appBar: AppBar(
                 title: Row(children: [
+                  const Text('Editor'),
                   const Padding(padding: EdgeInsets.all(20.0)),
                   DropdownButton(
                       value: dropdownValue,
-                      icon: const Icon(Icons.sort, color: Colors.white),
+                      icon: Row(
+                        children: const [
+                          Padding(
+                            padding: EdgeInsets.all(3.0),
+                          ),
+                          Icon(Icons.sort, color: Colors.white),
+                        ],
+                      ),
                       items: dropDown.map<DropdownMenuItem<String>>(
                         (String value) {
                           return DropdownMenuItem<String>(
@@ -82,10 +90,12 @@ class _EditorPage extends State<EditorPage> {
                 ],
               ),
               body: EditorWidget(
-                  snapshot: snapshot,
-                  onSave: (List<Audio> loadedSongs) {
-                    songs = loadedSongs;
-                  }),
+                snapshot: snapshot,
+                onSave: (List<Audio> loadedSongs) {
+                  songs = loadedSongs;
+                },
+                dropdownValue: dropdownValue,
+              ),
             ),
           );
         });

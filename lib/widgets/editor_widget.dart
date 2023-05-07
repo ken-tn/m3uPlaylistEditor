@@ -9,11 +9,13 @@ import 'package:provider/provider.dart';
 class EditorWidget extends StatefulWidget {
   final AsyncSnapshot snapshot;
   final SaveCallback onSave;
+  final String dropdownValue;
 
   const EditorWidget({
     super.key,
     required this.snapshot,
     required this.onSave,
+    required this.dropdownValue,
   });
 
   @override
@@ -33,7 +35,20 @@ class _EditorWidget extends State<EditorWidget> {
         Playlist selectedPlaylist = appState.selectedPlaylist;
         List<Audio> loadedSongs = selectedPlaylist.toList(songs);
         widget.onSave(loadedSongs);
-        songs.sort((a, b) => a.compareArtist(b));
+        switch (widget.dropdownValue) {
+          case 'Modified':
+            songs.sort((a, b) => a.compareDateModified(b));
+            songs = songs.reversed.toList();
+            break;
+          case 'Artist':
+            songs.sort((a, b) => a.compareArtist(b));
+            break;
+          case 'Title':
+            songs.sort((a, b) => a.compareTitle(b));
+            break;
+          default:
+            break;
+        }
 
         void updateState() {
           setState(
