@@ -62,18 +62,6 @@ class _EditorPage extends State<EditorPage> {
             }
           }
 
-          // return WillPopScope(
-          //   onWillPop: () {
-          //     // on back button pressed
-          //     SystemChrome.setPreferredOrientations(
-          //         [DeviceOrientation.portraitUp]);
-
-          //     // trigger leaving and use own data
-          //     Navigator.pop(context, false);
-
-          //     // we need to return a future
-          //     return Future.value(false);
-          //   },
           return GestureDetector(
             // unfocus on tap outside search bar
             onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
@@ -91,29 +79,9 @@ class _EditorPage extends State<EditorPage> {
                           }),
                         ),
                         const Padding(padding: EdgeInsets.all(10.0)),
-                        SizedBox(
+                        SearchWidget(
                           width: 100,
-                          child: TextField(
-                              controller: _searchController,
-                              style: const TextStyle(color: Colors.white),
-                              cursorColor: Colors.white,
-                              decoration: InputDecoration(
-                                hintText: 'Search...',
-                                hintStyle:
-                                    const TextStyle(color: Colors.white54),
-                                border: InputBorder.none,
-                                prefixIcon: const Icon(Icons.search),
-                                suffixIcon: ClipOval(
-                                  child: Material(
-                                    color: Colors.transparent,
-                                    child: IconButton(
-                                      iconSize: 20,
-                                      onPressed: _searchController.clear,
-                                      icon: const Icon(Icons.clear),
-                                    ),
-                                  ),
-                                ),
-                              )),
+                          controller: _searchController,
                         ),
                       ]),
                       actions: [
@@ -152,28 +120,9 @@ class _EditorPage extends State<EditorPage> {
                           }),
                         ),
                         const Padding(padding: EdgeInsets.all(10.0)),
-                        SizedBox(
-                          width: 120,
-                          child: TextField(
-                              controller: _searchController,
-                              style: const TextStyle(color: Colors.white),
-                              cursorColor: Colors.white,
-                              decoration: InputDecoration(
-                                hintText: 'Search...',
-                                hintStyle:
-                                    const TextStyle(color: Colors.white54),
-                                border: InputBorder.none,
-                                suffixIcon: ClipOval(
-                                  child: Material(
-                                    color: Colors.transparent,
-                                    child: IconButton(
-                                      iconSize: 20,
-                                      onPressed: _searchController.clear,
-                                      icon: const Icon(Icons.clear),
-                                    ),
-                                  ),
-                                ),
-                              )),
+                        SearchWidget(
+                          width: 150,
+                          controller: _searchController,
                         ),
                       ]),
                       actions: [
@@ -245,6 +194,50 @@ class _SortByWidget extends State<SortByWidget> {
           // This is called when the user selects an item.
           widget.onChanged(value!);
         });
+  }
+}
+
+class SearchWidget extends StatefulWidget {
+  final double width;
+  final TextEditingController controller;
+
+  const SearchWidget({
+    super.key,
+    required this.width,
+    required this.controller,
+  });
+
+  @override
+  State<SearchWidget> createState() => _SearchWidget();
+}
+
+class _SearchWidget extends State<SearchWidget> {
+  @override
+  Widget build(BuildContext context) {
+    final controller = widget.controller;
+    return SizedBox(
+      width: widget.width,
+      child: TextField(
+          controller: controller,
+          style: const TextStyle(color: Colors.white),
+          cursorColor: Colors.white,
+          decoration: InputDecoration(
+            hintText: 'Search...',
+            hintStyle: const TextStyle(color: Colors.white54),
+            border: InputBorder.none,
+            prefixIcon: const Icon(Icons.search),
+            suffixIcon: ClipOval(
+              child: Material(
+                color: Colors.transparent,
+                child: IconButton(
+                  iconSize: 20,
+                  onPressed: controller.clear,
+                  icon: const Icon(Icons.clear),
+                ),
+              ),
+            ),
+          )),
+    );
   }
 }
 
