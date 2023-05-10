@@ -33,7 +33,7 @@ class _EditorPage extends State<EditorPage> {
           .toList();
     });
 
-    logger.d(filteredSongs.length);
+    logger.d('Search results: ${filteredSongs.length}');
   }
 
   @override

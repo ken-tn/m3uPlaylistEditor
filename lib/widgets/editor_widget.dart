@@ -28,8 +28,7 @@ class _EditorWidget extends State<EditorWidget> {
   @override
   Widget build(BuildContext context) {
     var appState = context.watch<AppState>();
-    List<Audio> songs = List<Audio>.from(widget.filteredSongs);
-    logger.d(widget.filteredSongs.length);
+    List<Audio> songs = widget.filteredSongs;
     String sortType = widget.dropdownValue;
 
     return LayoutBuilder(builder: (context, constraints) {
