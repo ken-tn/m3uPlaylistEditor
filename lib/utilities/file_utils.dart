@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:logger/logger.dart';
 import 'package:m3u_playlist/models/audio_model.dart';
 import 'package:m3u_playlist/models/playlist_model.dart';
@@ -25,18 +26,39 @@ const Map<String, Function> audioFileFormats = {
 // '.wav',
 // '.opus',
 
-Future<void> _requestPermission(List<Permission> permission) async {
-  // Map<Permission, PermissionStatus> statuses = await permission.request();
-  await permission.request();
+Future<void> _requestPermissions() async {
+  if (Platform.isAndroid) {
+    var androidInfo = await DeviceInfoPlugin().androidInfo;
+    final int sdkInt = androidInfo.version.sdkInt;
+    if (sdkInt >= 29 && sdkInt <= 32) {
+      await [
+        Permission.storage,
+      ].request();
+    } else if (sdkInt >= 33) {
+      await [
+        Permission.audio,
+        Permission.manageExternalStorage,
+      ].request();
+    }
+
+    return;
+  }
+
+  if (Platform.isIOS) {
+    // var iosInfo = await DeviceInfoPlugin().iosInfo;
+    // var systemName = iosInfo.systemName;
+    // var version = iosInfo.systemVersion;
+    // var name = iosInfo.name;
+    // var model = iosInfo.model;
+    // print('$systemName $version, $name $model');
+    // iOS 13.1, iPhone 11 Pro Max iPhone
+
+    return;
+  }
 }
 
 Future<File> createPlaylistFile(String name) async {
-  await _requestPermission(<Permission>[
-    Permission.storage,
-    Permission.manageExternalStorage,
-    Permission.accessMediaLocation,
-  ]);
-
+  await _requestPermissions();
   Directory dir = Directory('/storage/emulated/0/Playlists');
   if (!dir.existsSync()) {
     dir = await Directory(dir.path).create();
@@ -50,16 +72,32 @@ Future<File> createPlaylistFile(String name) async {
   return await playlistFile.writeAsString('');
 }
 
+List<FileSystemEntity> ignoredListSync(Directory currentDir,
+    [List<FileSystemEntity>? foundFiles]) {
+  List<FileSystemEntity> files = currentDir.listSync(followLinks: false);
+  if (files.isEmpty) {
+    return files;
+  }
+
+  // solves concurrency error
+  List<FileSystemEntity> subFiles = [];
+  for (FileSystemEntity dir in files) {
+    // android 11: /Android/ access not allowed
+    if (dir is Directory && !dir.path.toLowerCase().contains('android')) {
+      subFiles.addAll(ignoredListSync(dir, foundFiles));
+    }
+  }
+
+  files.addAll(subFiles);
+
+  return files;
+}
+
 Future<List> playlistsAndAudio() async {
-  await _requestPermission(<Permission>[
-    Permission.storage,
-    Permission.manageExternalStorage,
-    Permission.accessMediaLocation,
-  ]);
+  await _requestPermissions();
 
   Directory dir = Directory('/storage/emulated/0/');
-  List<FileSystemEntity> files =
-      dir.listSync(recursive: true, followLinks: false);
+  Iterable<FileSystemEntity> files = ignoredListSync(dir);
 
   List<Audio> songs = [];
   List<Playlist> playlists = [];
