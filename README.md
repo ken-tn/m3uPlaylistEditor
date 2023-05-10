@@ -1,6 +1,9 @@
 # m3u_playlist
 
-M3U playlist editor currently for Android only.
+M3U playlist editor for Android.
+
+Supported SDK/API Levels:
+29
 
 ## Getting Started
 
