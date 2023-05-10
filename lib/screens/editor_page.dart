@@ -60,7 +60,7 @@ class _EditorPage extends State<EditorPage> {
         builder: (context, AsyncSnapshot<List<dynamic>> snapshot) {
           if (snapshot.hasData) {
             _songData = snapshot.data![1];
-            if (filteredSongs.isEmpty) {
+            if (filteredSongs.isEmpty && _searchController.text.isEmpty) {
               filteredSongs = _songData;
             }
           }
