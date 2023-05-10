@@ -61,110 +61,99 @@ class _EditorWidget extends State<EditorWidget> {
         widget.onSave(loadedSongs);
       }
 
-      return SafeArea(
-        child: Row(
-          children: [
-            Expanded(
-              child: ListView(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(3),
-                    child: Text('You have ${songs.length} songs: '),
-                  ),
-                  for (var audio in songs)
-                    ListTile(
-                      subtitle: SubtitleTextWidget(
-                        sortType: sortType,
-                        audio: audio,
-                      ),
-                      leading: audio.tags.containsKey('cover')
-                          ? Container(
-                              decoration: const BoxDecoration(
-                                color: Colors.white,
-                                shape: BoxShape.circle,
-                                boxShadow: [
-                                  BoxShadow(
-                                      blurRadius: 10,
-                                      color: Colors.black,
-                                      spreadRadius: 1)
-                                ],
-                              ),
-                              child: CircleAvatar(
-                                backgroundImage: Image.file(
-                                  File(audio.tags['cover'] as String),
-                                ).image,
-                              ),
-                            )
-                          : const Icon(Icons.music_note),
-                      title: Text(
-                        audio.name(),
-                      ),
-                      onTap: () {
-                        if (selectedPlaylist.add(audio.path)) {
-                          myScrollController.animateTo(
-                              72.0 * (selectedPlaylist.songs.length + 1),
-                              duration: const Duration(milliseconds: 500),
-                              curve: Curves.easeOut);
-                          updateState();
-                        }
-                      },
-                    ),
-                ],
-              ),
-            ),
-            Expanded(
-              child: ReorderableListView(
-                scrollController: myScrollController,
-                onReorder: (oldIndex, newIndex) => {
-                  selectedPlaylist.swap(oldIndex, newIndex),
-                  updateState(),
-                },
-                header: Text(
-                    '${selectedPlaylist.name()}: ${selectedPlaylist.songs.length} songs'),
-                padding: const EdgeInsets.all(5),
-                children: [
-                  for (Audio audio in loadedSongs)
-                    ListTile(
-                      key: ValueKey(audio),
-                      textColor: audio.tags.containsKey('isMissing')
-                          ? Theme.of(context).colorScheme.errorContainer
-                          : null,
-                      subtitle: audio.tags.containsKey('artist')
-                          ? Text(audio.tags['artist'] as String)
-                          : const Text('Unknown artist'),
-                      leading: audio.tags.containsKey('cover')
-                          ? Container(
-                              decoration: const BoxDecoration(
-                                color: Colors.white,
-                                shape: BoxShape.circle,
-                                boxShadow: [
-                                  BoxShadow(
-                                      blurRadius: 10,
-                                      color: Colors.black,
-                                      spreadRadius: 1)
-                                ],
-                              ),
-                              child: CircleAvatar(
-                                backgroundImage: Image.file(
-                                  File(audio.tags['cover'] as String),
-                                ).image,
-                              ),
-                            )
-                          : const Icon(Icons.music_note),
-                      title: Text(audio.name()),
-                      onTap: () {
-                        if (selectedPlaylist.remove(audio.path)) {
-                          updateState();
-                        }
-                      },
-                    ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      );
+      return OrientationBuilder(builder: (context, orientation) {
+        if (orientation == Orientation.portrait) {
+          return Column(
+            children: [
+              deviceSongs(songs, sortType, selectedPlaylist, updateState),
+              playlistSongs(
+                  selectedPlaylist, updateState, loadedSongs, context),
+            ],
+          );
+        } else {
+          return Row(
+            children: [
+              deviceSongs(songs, sortType, selectedPlaylist, updateState),
+              playlistSongs(
+                  selectedPlaylist, updateState, loadedSongs, context),
+            ],
+          );
+        }
+      });
     });
+  }
+
+  Expanded playlistSongs(Playlist selectedPlaylist, void Function() updateState,
+      List<Audio> loadedSongs, BuildContext context) {
+    return Expanded(
+      child: ReorderableListView(
+        scrollController: myScrollController,
+        onReorder: (oldIndex, newIndex) => {
+          selectedPlaylist.swap(oldIndex, newIndex),
+          updateState(),
+        },
+        header: Text(
+            '${selectedPlaylist.name()}: ${selectedPlaylist.songs.length} songs'),
+        padding: const EdgeInsets.all(5),
+        children: [
+          for (Audio audio in loadedSongs)
+            ListTile(
+              key: ValueKey(audio),
+              textColor: audio.tags.containsKey('isMissing')
+                  ? Theme.of(context).colorScheme.errorContainer
+                  : null,
+              subtitle: audio.tags.containsKey('artist')
+                  ? Text(audio.tags['artist'] as String)
+                  : const Text('Unknown artist'),
+              leading: LeadingIconWidget(
+                audio: audio,
+              ),
+              title: Text(audio.name()),
+              onTap: () {
+                if (selectedPlaylist.remove(audio.path)) {
+                  updateState();
+                }
+              },
+            ),
+        ],
+      ),
+    );
+  }
+
+  Expanded deviceSongs(List<Audio> songs, String sortType,
+      Playlist selectedPlaylist, void Function() updateState) {
+    return Expanded(
+      child: ListView(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(3),
+            child: Text('You have ${songs.length} songs: '),
+          ),
+          for (var audio in songs)
+            ListTile(
+              subtitle: SubtitleTextWidget(
+                sortType: sortType,
+                audio: audio,
+              ),
+              leading: LeadingIconWidget(
+                audio: audio,
+              ),
+              title: Text(
+                audio.name(),
+              ),
+              onTap: () {
+                if (selectedPlaylist.add(audio.path)) {
+                  myScrollController.animateTo(
+                      72.0 * (selectedPlaylist.songs.length + 1),
+                      duration: const Duration(milliseconds: 500),
+                      curve: Curves.easeOut);
+                  updateState();
+                }
+              },
+            ),
+        ],
+      ),
+    );
   }
 }
 
@@ -201,6 +190,44 @@ class _SubtitleTextWidget extends State<SubtitleTextWidget> {
     }
 
     return returnSubtitle;
+  }
+}
+
+class LeadingIconWidget extends StatefulWidget {
+  final Audio audio;
+
+  const LeadingIconWidget({
+    super.key,
+    required this.audio,
+  });
+
+  @override
+  State<LeadingIconWidget> createState() => _LeadingIconWidget();
+}
+
+class _LeadingIconWidget extends State<LeadingIconWidget> {
+  @override
+  Widget build(BuildContext context) {
+    final audio = widget.audio;
+
+    if (audio.tags.containsKey('cover')) {
+      return Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          shape: BoxShape.circle,
+          boxShadow: [
+            BoxShadow(blurRadius: 10, color: Colors.black, spreadRadius: 1)
+          ],
+        ),
+        child: CircleAvatar(
+          backgroundImage: Image.file(
+            File(audio.tags['cover'] as String),
+          ).image,
+        ),
+      );
+    } else {
+      return const Icon(Icons.music_note);
+    }
   }
 }
 
