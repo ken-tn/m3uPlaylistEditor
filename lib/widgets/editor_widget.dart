@@ -28,14 +28,17 @@ class _EditorWidget extends State<EditorWidget> {
   @override
   Widget build(BuildContext context) {
     var appState = context.watch<AppState>();
+    String sortType = widget.dropdownValue;
+
     return LayoutBuilder(builder: (context, constraints) {
       var snapshot = widget.snapshot;
       if (snapshot.hasData) {
         List<Audio> songs = snapshot.data![1];
         Playlist selectedPlaylist = appState.selectedPlaylist;
         List<Audio> loadedSongs = selectedPlaylist.toList(songs);
+
         widget.onSave(loadedSongs);
-        switch (widget.dropdownValue) {
+        switch (sortType) {
           case 'Modified':
             songs.sort((a, b) => a.compareDateModified(b));
             songs = songs.reversed.toList();
@@ -72,9 +75,10 @@ class _EditorWidget extends State<EditorWidget> {
                     ),
                     for (var audio in songs)
                       ListTile(
-                        subtitle: audio.tags.containsKey('artist')
-                            ? Text(audio.tags['artist'] as String)
-                            : const Text('Unknown artist'),
+                        subtitle: SubtitleTextWidget(
+                          sortType: sortType,
+                          audio: audio,
+                        ),
                         leading: audio.tags.containsKey('cover')
                             ? Container(
                                 decoration: const BoxDecoration(
@@ -166,6 +170,42 @@ class _EditorWidget extends State<EditorWidget> {
         return const Center(child: CircularProgressIndicator());
       }
     });
+  }
+}
+
+class SubtitleTextWidget extends StatefulWidget {
+  final String sortType;
+  final Audio audio;
+
+  const SubtitleTextWidget({
+    super.key,
+    required this.sortType,
+    required this.audio,
+  });
+
+  @override
+  State<SubtitleTextWidget> createState() => _SubtitleTextWidget();
+}
+
+class _SubtitleTextWidget extends State<SubtitleTextWidget> {
+  @override
+  Widget build(BuildContext context) {
+    final Audio audio = widget.audio;
+    late Text returnSubtitle;
+    switch (widget.sortType) {
+      case 'Album':
+        returnSubtitle = audio.tags.containsKey('album')
+            ? Text(audio.tags['album'] as String)
+            : const Text('Unknown album');
+        break;
+      default:
+        returnSubtitle = audio.tags.containsKey('artist')
+            ? Text(audio.tags['artist'] as String)
+            : const Text('Unknown artist');
+        break;
+    }
+
+    return returnSubtitle;
   }
 }
 
