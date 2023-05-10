@@ -100,19 +100,21 @@ class _HomePageState extends State<HomePage> {
     return FutureBuilder<List>(
       future: musicData,
       builder: (context, AsyncSnapshot<List<dynamic>> snapshot) {
-        return Scaffold(
-          floatingActionButton: FloatingActionButton(
-            onPressed: () {
-              showAction(context);
-            },
-            backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-            child: const Icon(Icons.add),
-          ),
-          body: RefreshIndicator(
-            onRefresh: pullRefresh,
-            child: PlaylistWidget(snapshot: snapshot),
-          ),
-        );
+        return OrientationBuilder(builder: (context, orientation) {
+          return Scaffold(
+            floatingActionButton: FloatingActionButton(
+              onPressed: () {
+                showAction(context);
+              },
+              backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+              child: const Icon(Icons.add),
+            ),
+            body: RefreshIndicator(
+              onRefresh: pullRefresh,
+              child: PlaylistWidget(snapshot: snapshot),
+            ),
+          );
+        });
       },
     );
   }
