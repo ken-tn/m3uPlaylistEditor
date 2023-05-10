@@ -2,8 +2,11 @@
 
 M3U playlist editor for Android.
 
-Supported SDK/API Levels:
-29
+Android
+| SDK Version  | Supported |
+| ------------ | ------------- |
+| 29           | ✅           |
+| 33           | ✅           |
 
 ## Getting Started
 
