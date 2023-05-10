@@ -26,7 +26,8 @@ class _EditorPage extends State<EditorPage> {
   Future<void> _performSearch() async {
     setState(() {
       filteredSongs = _songData
-          .where((element) => element.tags['title']
+          .where((element) => element
+              .name()
               .toLowerCase()
               .contains(_searchController.text.toLowerCase()))
           .toList();
@@ -70,6 +71,8 @@ class _EditorPage extends State<EditorPage> {
                 if (orientation == Orientation.portrait) {
                   // Portrait
                   return Scaffold(
+                    // prevents keyboard from resizing body
+                    resizeToAvoidBottomInset: false,
                     appBar: AppBar(
                       title: Row(children: [
                         SortByWidget(
