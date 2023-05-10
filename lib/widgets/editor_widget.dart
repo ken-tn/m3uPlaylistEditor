@@ -65,17 +65,25 @@ class _EditorWidget extends State<EditorWidget> {
         if (orientation == Orientation.portrait) {
           return Column(
             children: [
+              deviceSongs(songs, sortType, selectedPlaylist, updateState),
+              const Divider(
+                thickness: 5,
+                height: 5,
+              ),
               playlistSongs(
                   selectedPlaylist, updateState, loadedSongs, context),
-              deviceSongs(songs, sortType, selectedPlaylist, updateState),
             ],
           );
         } else {
           return Row(
             children: [
+              deviceSongs(songs, sortType, selectedPlaylist, updateState),
+              const VerticalDivider(
+                thickness: 5,
+                width: 5,
+              ),
               playlistSongs(
                   selectedPlaylist, updateState, loadedSongs, context),
-              deviceSongs(songs, sortType, selectedPlaylist, updateState),
             ],
           );
         }
