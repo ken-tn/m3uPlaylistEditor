@@ -1,6 +1,6 @@
 # m3u_playlist
 
-A new Flutter project.
+M3U playlist editor currently for Android only.
 
 ## Getting Started
 
