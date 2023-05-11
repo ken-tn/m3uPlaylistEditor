@@ -6,6 +6,7 @@ Android
 | SDK Version  | Supported |
 | ------------ | ------------- |
 | 29           | ✅           |
+| 31           | ✅           |
 | 33           | ✅           |
 
 ## Getting Started
