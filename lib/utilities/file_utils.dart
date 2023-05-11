@@ -30,13 +30,12 @@ Future<void> _requestPermissions() async {
   if (Platform.isAndroid) {
     var androidInfo = await DeviceInfoPlugin().androidInfo;
     final int sdkInt = androidInfo.version.sdkInt;
-    if (sdkInt >= 29 && sdkInt <= 32) {
+    if (sdkInt <= 29) {
       await [
         Permission.storage,
       ].request();
-    } else if (sdkInt >= 33) {
+    } else if (sdkInt >= 30) {
       await [
-        Permission.audio,
         Permission.manageExternalStorage,
       ].request();
     }

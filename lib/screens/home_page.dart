@@ -65,9 +65,7 @@ class _HomePageState extends State<HomePage> {
                           onPressed: () {
                             // Validate returns true if the form is valid, or false otherwise.
                             if (_formKey.currentState!.validate()) {
-                              // If the form is valid, display a snackbar. In the real world,
-                              // you'd often call a server or save the information in a database.
-                              Navigator.of(context).pop();
+                              // If the form is valid, display a snackbar.
                               createPlaylistFile(name).then((value) => {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
@@ -77,6 +75,8 @@ class _HomePageState extends State<HomePage> {
                                     ),
                                     pullRefresh(),
                                   });
+
+                              Navigator.of(context).pop();
                             }
                           },
                         ),
