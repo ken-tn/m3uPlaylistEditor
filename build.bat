@@ -2,6 +2,9 @@
 @REM Change DEVICE_ID to your connected device id (adb devices -l)
 SET DEVICE_ID=0
 
+@REM Prevents changes to build.bat, "git update-index --no-assume-unchanged build.bat" to undo
+git update-index --assume-unchanged build.bat
+
 
 
 IF %DEVICE_ID% == 0 goto :fail
