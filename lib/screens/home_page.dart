@@ -74,9 +74,8 @@ class _HomePageState extends State<HomePage> {
                                       ),
                                     ),
                                     pullRefresh(),
+                                    Navigator.of(context).pop(),
                                   });
-
-                              Navigator.of(context).pop();
                             }
                           },
                         ),
