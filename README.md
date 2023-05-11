@@ -2,12 +2,11 @@
 
 M3U playlist editor for Android.
 
-Android
-| SDK Version  | Supported |
-| ------------ | ------------- |
-| 29           | ✅           |
-| 31           | ✅           |
-| 33           | ✅           |
+Android Version | SDK Version  | Supported |
+| ------------  | ------------ | --------- |
+| 10            | 29           | ✅        |
+| 12            | 31           | ✅        |
+| 13            | 33           | ✅        |
 
 ## Getting Started
 
