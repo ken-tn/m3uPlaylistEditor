@@ -8,6 +8,17 @@ Android Version | SDK Version  | Supported |
 | 12            | 31           | ✅        |
 | 13            | 33           | ✅        |
 
+## Build from source
+
+<b>Windows</b>
+
+Replace DEVICE_ID in build.bat with your connected device id.
+
+`adb devices -l` to list connected devices.
+
+Run `./build.bat` to build and install apk.
+
+
 ## Getting Started
 
 This project is a starting point for a Flutter application.
