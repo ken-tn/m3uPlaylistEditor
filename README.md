@@ -10,6 +10,10 @@ Android Version | SDK Version  | Supported |
 
 ## Build from source
 
+<b>Install flutter</b>
+
+https://docs.flutter.dev/get-started/install
+
 <b>Windows</b>
 
 Replace DEVICE_ID in build.bat with your connected device id.
