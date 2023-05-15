@@ -33,10 +33,11 @@ class Audio {
   }
 
   int compareDateModified(Audio other) {
-    File file = File(path);
-    File otherFile = File(other.path);
+    // File file = File(path);
+    // File otherFile = File(other.path);
 
-    return file.lastModifiedSync().compareTo(otherFile.lastAccessedSync());
+    // return file.lastModifiedSync().compareTo(otherFile.lastAccessedSync());
+    return 0;
   }
 
   int compareTitle(Audio other) {

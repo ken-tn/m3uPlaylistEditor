@@ -71,7 +71,7 @@ class _EditorPage extends State<EditorPage> {
                 if (orientation == Orientation.portrait) {
                   // Portrait
                   return Scaffold(
-                    // prevents keyboard from resizing body
+                    // prevents keyboard from resizing body which rotates screen
                     resizeToAvoidBottomInset: false,
                     appBar: AppBar(
                       title: Row(children: [
@@ -88,17 +88,7 @@ class _EditorPage extends State<EditorPage> {
                         ),
                       ]),
                       actions: [
-                        IconButton(
-                          icon: const Icon(Icons.save),
-                          tooltip: 'Save',
-                          onPressed: () {
-                            if (_playlistAudios.isEmpty) {
-                              logger.d("Playlist is empty, not saving.");
-                              return;
-                            }
-                            appState.selectedPlaylist.save(_playlistAudios);
-                          },
-                        ),
+                        saveActionButton(appState),
                       ],
                     ),
                     body: EditorWidget(
@@ -129,17 +119,7 @@ class _EditorPage extends State<EditorPage> {
                         ),
                       ]),
                       actions: [
-                        IconButton(
-                          icon: const Icon(Icons.save),
-                          tooltip: 'Save',
-                          onPressed: () {
-                            if (_playlistAudios.isEmpty) {
-                              logger.d("Playlist is empty, not saving.");
-                              return;
-                            }
-                            appState.selectedPlaylist.save(_playlistAudios);
-                          },
-                        ),
+                        saveActionButton(appState),
                       ],
                     ),
                     body: EditorWidget(
@@ -155,6 +135,20 @@ class _EditorPage extends State<EditorPage> {
             ),
           );
         });
+  }
+
+  IconButton saveActionButton(AppState appState) {
+    return IconButton(
+      icon: const Icon(Icons.save),
+      tooltip: 'Save',
+      onPressed: () {
+        if (_playlistAudios.isEmpty) {
+          logger.d("Playlist is empty, not saving.");
+          return;
+        }
+        appState.selectedPlaylist.save(_playlistAudios);
+      },
+    );
   }
 }
 

@@ -7,6 +7,7 @@ import 'package:m3u_playlist/models/audio_model.dart';
 import 'package:logger/logger.dart';
 import 'package:m3u_playlist/utilities/sql_utils.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:shared_storage/saf.dart';
 import 'package:uuid/uuid.dart';
 
 var logger = Logger(
@@ -15,12 +16,16 @@ var logger = Logger(
 
 const uuid = Uuid();
 
-Future<Audio> toMP3(FileSystemEntity file) async {
+Future<Audio> toMP3(DocumentFile file) async {
   // check the database first
-  List results = await findAudio(file.path);
+  String uripath = file.uri.path;
+  List results = await findAudio(uripath);
+  File mp3pain = File("${(await getTemporaryDirectory()).path}/pain.mp3");
+  mp3pain.writeAsBytes((await file.getContent())!);
   if (results.isNotEmpty) {
-    logger.d("Loading database entry for $file");
+    logger.d("Loading database entry for $uripath");
     var entry = results[0].row;
+    logger.d(entry[2]);
 
     return Audio(
         path: entry[0],
@@ -32,11 +37,10 @@ Future<Audio> toMP3(FileSystemEntity file) async {
   String coverPath = documentsDirectory.path;
   String imageUUID = uuid.v4();
   String imagePath = "$coverPath/$imageUUID.jpg";
-  final path = file.path;
-  final session = await FFprobeKit.getMediaInformation(path);
+  final session = await FFprobeKit.getMediaInformation(mp3pain.path);
   final information = session.getMediaInformation();
   await FFmpegKit.execute(
-          '-i "$path" -an -vcodec copy -frames:v 1 -update 1 "$imagePath"')
+          '-i "${mp3pain.path}" -an -vcodec copy -frames:v 1 -update 1 "$imagePath"')
       .then((session) async {
     // Command arguments
     final commandArguments = session.getArguments();
@@ -45,14 +49,14 @@ Future<Audio> toMP3(FileSystemEntity file) async {
   });
 
   Audio audio = Audio(
-    path: file.path,
+    path: uripath,
     filetype: 'Mp3',
     tags: {},
   );
 
   if (information == null) {
     // CHECK THE FOLLOWING ATTRIBUTES ON ERROR
-    logger.d("Failed to get information on $file.");
+    logger.d("Failed to get information on $uripath.");
     final returnCode = session.getReturnCode();
     final failStackTrace = session.getFailStackTrace();
     logger.d(returnCode, failStackTrace);
@@ -61,7 +65,7 @@ Future<Audio> toMP3(FileSystemEntity file) async {
 
   if (await File(imagePath).exists()) {
     audio.tags['cover'] = imagePath.substring(1);
-    logger.d("Set cover for $file.");
+    logger.d("Set cover for $uripath.");
   }
 
   final format = information.getFormatProperties();
@@ -69,6 +73,10 @@ Future<Audio> toMP3(FileSystemEntity file) async {
     final tags = format['tags'];
     audio.tags.addAll(Map<String, Object>.from(tags));
     logger.d(audio.tags);
+
+    insertAudio(audio);
+    mp3pain.delete();
+
     return audio;
   }
 

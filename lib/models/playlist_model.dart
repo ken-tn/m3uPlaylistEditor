@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:logger/logger.dart';
 import 'package:m3u_playlist/models/audio_model.dart';
 import 'package:path/path.dart';
+import 'package:shared_storage/saf.dart';
 
 var logger = Logger(
   printer: PrettyPrinter(),
@@ -111,7 +112,7 @@ class Playlist {
     return basename(path);
   }
 
-  Future<File> save(List<Audio> songs) async {
+  Future<bool?> save(List<Audio> songs) async {
     logger.d("Attempting to save.");
     String output = '';
     for (Audio song in songs) {
@@ -121,7 +122,13 @@ class Playlist {
     // remove file endline
     output = output.substring(0, output.length - 1);
     logger.d('Saving playlist\n$output');
-    return await File(path).writeAsString(output);
+
+    logger.d(path);
+    return await writeToFileAsString(
+      Uri(path: path),
+      content: output,
+      mode: FileMode.write,
+    );
   }
 
   @override

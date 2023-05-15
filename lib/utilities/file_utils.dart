@@ -5,7 +5,9 @@ import 'package:logger/logger.dart';
 import 'package:m3u_playlist/models/audio_model.dart';
 import 'package:m3u_playlist/models/playlist_model.dart';
 import 'package:m3u_playlist/utilities/sql_utils.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:shared_storage/shared_storage.dart' as saf;
 
 import 'mp3_parser.dart';
 import 'playlist_parser.dart';
@@ -15,7 +17,7 @@ final logger = Logger(
 );
 
 const Map<String, Function> audioFileFormats = {
-  'mp3': toMP3,
+  'audio/mpeg': toMP3,
 };
 // '.mp4',
 // '.m4a',
@@ -56,19 +58,24 @@ Future<void> _requestPermissions() async {
   }
 }
 
-Future<File> createPlaylistFile(String name) async {
-  await _requestPermissions();
+Future<Object?> createPlaylistFile(String name) async {
+  //await _requestPermissions();
   Directory dir = Directory('/storage/emulated/0/Playlists');
   if (!dir.existsSync()) {
     dir = await Directory(dir.path).create();
   }
   File playlistFile = File('${dir.path}/$name.m3u');
-  if (!playlistFile.existsSync()) {
-    playlistFile = await File(playlistFile.path).create();
-  } else {
+  if (playlistFile.existsSync()) {
     return playlistFile;
   }
-  return await playlistFile.writeAsString('');
+
+  Uri? myGrantedUri = await saf.openDocumentTree();
+  return await saf.createFile(
+    myGrantedUri!,
+    mimeType: 'audio/x-mpegurl',
+    displayName: '$name.m3u',
+    content: '',
+  );
 }
 
 List<FileSystemEntity> ignoredListSync(Directory currentDir,
@@ -93,10 +100,45 @@ List<FileSystemEntity> ignoredListSync(Directory currentDir,
 }
 
 Future<List> playlistsAndAudio() async {
-  await _requestPermissions();
+  //await _requestPermissions();
+  final List<saf.UriPermission>? grantedUris =
+      await saf.persistedUriPermissions();
 
-  Directory dir = Directory('/storage/emulated/0/');
-  Iterable<FileSystemEntity> files = ignoredListSync(dir);
+  if (grantedUris != null) {
+    print('There is no granted Uris');
+  } else {
+    print('My granted Uris: $grantedUris');
+  }
+
+  // *Must* be a granted uri from `openDocumentTree`, or a URI representing a child under such a granted uri.
+  Uri? myGrantedUri = await saf.openDocumentTree(
+      initialUri: Uri.parse(
+          'content://com.android.externalstorage.documents/tree/primary%3ADownloads/document/primary%3ADownloads'));
+  while (myGrantedUri == null) {
+    myGrantedUri = await saf.openDocumentTree();
+  }
+
+  if (myGrantedUri != null) {
+    print('Now I have permission over this Uri: $myGrantedUri');
+  }
+
+  const List<saf.DocumentFileColumn> columns = <saf.DocumentFileColumn>[
+    saf.DocumentFileColumn.displayName,
+    saf.DocumentFileColumn.size,
+    saf.DocumentFileColumn.lastModified,
+    saf.DocumentFileColumn.id,
+    saf.DocumentFileColumn.mimeType,
+  ];
+  List<saf.DocumentFile> files = [];
+  Stream<saf.DocumentFile> onNewFileLoaded =
+      saf.listFiles(myGrantedUri, columns: columns);
+
+  await for (saf.DocumentFile file in onNewFileLoaded) {
+    if (file.type == 'audio/mpeg' || file.type == 'audio/x-mpegurl') {
+      files.add(file);
+    }
+  }
+  //Iterable<FileSystemEntity> files = ignoredListSync(dir);
 
   List<Audio> songs = [];
   List<Playlist> playlists = [];
@@ -104,13 +146,13 @@ Future<List> playlistsAndAudio() async {
   await Future.forEach(files, (entity) async {
     // apply parser to matching file format
     for (var entry in audioFileFormats.entries) {
-      if (entity.path.endsWith(entry.key)) {
+      if (entity.type == entry.key) {
         songs.add(await entry.value(entity));
       }
     }
 
-    // parse playlist
-    if (entity.path.endsWith('.m3u')) {
+    // // parse playlist
+    if (entity.type == 'audio/x-mpegurl') {
       playlists.add(await toPlaylist(entity));
     }
   });
@@ -122,7 +164,6 @@ Future<List> playlistsAndAudio() async {
   logger.d("Parsed all audio");
 
   Future.forEach(playlists, (element) => insertPlaylist(element));
-  Future.forEach(songs, (element) => insertAudio(element));
 
   return [playlists, songs];
 }

@@ -45,6 +45,7 @@ dependencies:
   uuid: ^3.0.7
   flutter_launcher_icons: ^0.13.1
   device_info_plus: ^9.0.0
+  shared_storage: ^0.7.1
 
 flutter_launcher_icons:
   android: "launcher_icon"
