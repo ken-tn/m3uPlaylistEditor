@@ -107,13 +107,17 @@ class Playlist {
   }
 
   String name() {
-    return basename(path);
+    return Uri.decodeFull(basename(path));
   }
 
   Future<bool?> save(List<Audio> songs) async {
     logger.d("Attempting to save.");
     Uri playlistUri =
         Uri.parse('content://com.android.externalstorage.documents$path');
+
+    final DocumentFile treeUri = (await fromTreeUri(playlistUri))!;
+    Uri? asdf = treeUri.parentUri;
+    logger.d('here $asdf');
 
     String output = '';
     for (Audio song in songs) {
