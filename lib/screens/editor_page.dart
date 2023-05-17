@@ -12,7 +12,8 @@ class EditorPage extends StatefulWidget {
   State<EditorPage> createState() => _EditorPage();
 }
 
-final List<String> dropDown = <String>['Modified', 'Artist', 'Title', 'Album'];
+// TODO: 'Modified',
+final List<String> dropDown = <String>['Artist', 'Title', 'Album'];
 var logger = Logger(
   printer: PrettyPrinter(),
 );

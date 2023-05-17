@@ -5,6 +5,8 @@ import 'package:logger/logger.dart';
 import 'package:m3u_playlist/models/audio_model.dart';
 import 'package:m3u_playlist/models/playlist_model.dart';
 import 'package:m3u_playlist/utilities/sql_utils.dart';
+import 'package:path/path.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_storage/shared_storage.dart';
 
@@ -126,18 +128,22 @@ Future<Uri> waitSafPermission(Uri uri) async {
   return tempUri;
 }
 
+String toRealPath(String uriPath) {
+  String realPath = Uri.decodeFull(basename(uriPath));
+  String asdf = realPath.substring(realPath.indexOf(':') + 1);
+
+  return '/storage/emulated/0/$asdf';
+}
+
 Future<List> playlistsAndAudio() async {
   //await _requestPermissions();
-  final Uri musicUriPath = Uri.parse(
+  final Uri musicUri = Uri.parse(
       'content://com.android.externalstorage.documents/tree/primary%3AMusic');
-  final Uri playlistUriPath = Uri.parse(
+  final Uri playlistUri = Uri.parse(
       'content://com.android.externalstorage.documents/tree/primary%3APlaylists');
 
-  Uri musicUri = await waitSafPermission(musicUriPath);
-  Uri playlistUri = await waitSafPermission(playlistUriPath);
-
-  logger.d(musicUri);
-  logger.d(playlistUri);
+  await waitSafPermission(musicUri);
+  await waitSafPermission(playlistUri);
 
   const List<DocumentFileColumn> columns = <DocumentFileColumn>[
     DocumentFileColumn.displayName,
@@ -146,7 +152,7 @@ Future<List> playlistsAndAudio() async {
   List<DocumentFile> files = [];
   Stream<DocumentFile> onNewFileLoaded = listFiles(musicUri, columns: columns);
   Stream<DocumentFile> onPlaylistLoaded =
-      listFiles(playlistUriPath, columns: columns);
+      listFiles(playlistUri, columns: columns);
 
   await for (DocumentFile file in onNewFileLoaded) {
     if (file.type == 'audio/mpeg' || file.type == 'audio/x-mpegurl') {

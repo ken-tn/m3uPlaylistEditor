@@ -10,6 +10,8 @@ import 'package:path_provider/path_provider.dart';
 import 'package:shared_storage/saf.dart';
 import 'package:uuid/uuid.dart';
 
+import 'file_utils.dart';
+
 var logger = Logger(
   printer: PrettyPrinter(),
 );
@@ -18,7 +20,8 @@ const uuid = Uuid();
 
 Future<Audio> toMP3(DocumentFile file) async {
   // check the database first
-  String uripath = file.uri.path;
+  String uripath = toRealPath(file.uri.path);
+  logger.d(uripath);
   List results = await findAudio(uripath);
   File mp3pain = File("${(await getTemporaryDirectory()).path}/pain.mp3");
   mp3pain.writeAsBytes((await file.getContent())!);

@@ -3,7 +3,10 @@ import 'dart:io';
 import 'package:logger/logger.dart';
 import 'package:m3u_playlist/models/audio_model.dart';
 import 'package:path/path.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:shared_storage/saf.dart';
+
+import '../utilities/file_utils.dart';
 
 final logger = Logger();
 
@@ -115,10 +118,6 @@ class Playlist {
     Uri playlistUri =
         Uri.parse('content://com.android.externalstorage.documents$path');
 
-    final DocumentFile treeUri = (await fromTreeUri(playlistUri))!;
-    Uri? asdf = treeUri.parentUri;
-    logger.d('here $asdf');
-
     String output = '';
     for (Audio song in songs) {
       output += '${song.path}\n';
@@ -128,15 +127,11 @@ class Playlist {
     output = output.substring(0, output.length - 1);
     logger.d('Saving playlist\n$output');
 
-    logger.d(playlistUri);
-    bool? success = await writeToFileAsString(
+    return await writeToFileAsString(
       playlistUri,
       content: output,
       mode: FileMode.write,
     );
-
-    logger.d(success);
-    return success;
   }
 
   @override
