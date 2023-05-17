@@ -16,9 +16,7 @@ Future<Playlist> toPlaylist(DocumentFile file) async {
   }
 
   const splitter = LineSplitter();
-  splitter
-      .convert(String.fromCharCodes(content))
-      .forEach((l) => {songs.add(l)});
+  splitter.convert(utf8.decode(content)).forEach((l) => {songs.add(l)});
 
   logger.d('songs: $songs');
 

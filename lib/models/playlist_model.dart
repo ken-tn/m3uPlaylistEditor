@@ -1,12 +1,11 @@
+import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:logger/logger.dart';
 import 'package:m3u_playlist/models/audio_model.dart';
 import 'package:path/path.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:shared_storage/saf.dart';
-
-import '../utilities/file_utils.dart';
 
 final logger = Logger();
 
@@ -127,9 +126,9 @@ class Playlist {
     output = output.substring(0, output.length - 1);
     logger.d('Saving playlist\n$output');
 
-    return await writeToFileAsString(
+    return await writeToFileAsBytes(
       playlistUri,
-      content: output,
+      bytes: utf8.encode(output) as Uint8List,
       mode: FileMode.write,
     );
   }
