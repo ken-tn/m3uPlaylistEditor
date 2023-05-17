@@ -5,7 +5,6 @@ import 'package:m3u_playlist/utilities/file_utils.dart';
 class AppState extends ChangeNotifier {
   Future<List> musicData = playlistsAndAudio();
   late Playlist selectedPlaylist;
-  bool isLoadingData = false;
 
   void updateSelectedPlaylist(Playlist playlist) {
     selectedPlaylist = playlist;
@@ -13,7 +12,11 @@ class AppState extends ChangeNotifier {
   }
 
   void updateMusicData() async {
-    musicData = playlistsAndAudio();
+    // load in background
+    Future<List> newMusicData = playlistsAndAudio();
+    await newMusicData;
+
+    musicData = newMusicData;
     notifyListeners();
   }
 }
