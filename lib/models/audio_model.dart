@@ -1,7 +1,9 @@
 import 'dart:convert';
-import 'dart:io';
 
+import 'package:logger/logger.dart';
 import 'package:path/path.dart';
+
+final logger = Logger();
 
 class Audio {
   final String path;

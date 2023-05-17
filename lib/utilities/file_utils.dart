@@ -5,16 +5,13 @@ import 'package:logger/logger.dart';
 import 'package:m3u_playlist/models/audio_model.dart';
 import 'package:m3u_playlist/models/playlist_model.dart';
 import 'package:m3u_playlist/utilities/sql_utils.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:shared_storage/shared_storage.dart' as saf;
+import 'package:shared_storage/shared_storage.dart';
 
 import 'mp3_parser.dart';
 import 'playlist_parser.dart';
 
-final logger = Logger(
-  printer: PrettyPrinter(),
-);
+final logger = Logger();
 
 const Map<String, Function> audioFileFormats = {
   'audio/mpeg': toMP3,
@@ -60,6 +57,10 @@ Future<void> _requestPermissions() async {
 
 Future<Object?> createPlaylistFile(String name) async {
   //await _requestPermissions();
+  final Uri playlistUriPath = Uri.parse(
+      'content://com.android.externalstorage.documents/tree/primary%3APlaylists');
+
+  Uri playlistUri = await waitSafPermission(playlistUriPath);
   Directory dir = Directory('/storage/emulated/0/Playlists');
   if (!dir.existsSync()) {
     dir = await Directory(dir.path).create();
@@ -69,9 +70,8 @@ Future<Object?> createPlaylistFile(String name) async {
     return playlistFile;
   }
 
-  Uri? myGrantedUri = await saf.openDocumentTree();
-  return await saf.createFile(
-    myGrantedUri!,
+  return await createFile(
+    playlistUri,
     mimeType: 'audio/x-mpegurl',
     displayName: '$name.m3u',
     content: '',
@@ -99,46 +99,67 @@ List<FileSystemEntity> ignoredListSync(Directory currentDir,
   return files;
 }
 
-Future<List> playlistsAndAudio() async {
-  //await _requestPermissions();
-  final List<saf.UriPermission>? grantedUris =
-      await saf.persistedUriPermissions();
+Future<Uri?> hasSafPermission(Uri uri) async {
+  List<UriPermission>? grantedUris = await persistedUriPermissions();
+  logger.d('Granted URIs: $grantedUris');
 
   if (grantedUris != null) {
-    print('There is no granted Uris');
-  } else {
-    print('My granted Uris: $grantedUris');
+    if (grantedUris.isNotEmpty) {
+      for (UriPermission permission in grantedUris) {
+        if (permission.uri == uri) {
+          return permission.uri;
+        }
+      }
+    }
   }
 
-  // *Must* be a granted uri from `openDocumentTree`, or a URI representing a child under such a granted uri.
-  Uri? myGrantedUri = await saf.openDocumentTree(
-      initialUri: Uri.parse(
-          'content://com.android.externalstorage.documents/tree/primary%3ADownloads/document/primary%3ADownloads'));
-  while (myGrantedUri == null) {
-    myGrantedUri = await saf.openDocumentTree();
+  return null;
+}
+
+Future<Uri> waitSafPermission(Uri uri) async {
+  Uri? tempUri = await hasSafPermission(uri);
+
+  while (tempUri == null) {
+    tempUri ??= await openDocumentTree(initialUri: uri);
   }
 
-  if (myGrantedUri != null) {
-    print('Now I have permission over this Uri: $myGrantedUri');
-  }
+  return tempUri;
+}
 
-  const List<saf.DocumentFileColumn> columns = <saf.DocumentFileColumn>[
-    saf.DocumentFileColumn.displayName,
-    saf.DocumentFileColumn.size,
-    saf.DocumentFileColumn.lastModified,
-    saf.DocumentFileColumn.id,
-    saf.DocumentFileColumn.mimeType,
+Future<List> playlistsAndAudio() async {
+  //await _requestPermissions();
+  final Uri musicUriPath = Uri.parse(
+      'content://com.android.externalstorage.documents/tree/primary%3AMusic');
+  final Uri playlistUriPath = Uri.parse(
+      'content://com.android.externalstorage.documents/tree/primary%3APlaylists');
+
+  Uri musicUri = await waitSafPermission(musicUriPath);
+  Uri playlistUri = await waitSafPermission(playlistUriPath);
+
+  logger.d(musicUri);
+  logger.d(playlistUri);
+
+  const List<DocumentFileColumn> columns = <DocumentFileColumn>[
+    DocumentFileColumn.displayName,
+    DocumentFileColumn.mimeType,
   ];
-  List<saf.DocumentFile> files = [];
-  Stream<saf.DocumentFile> onNewFileLoaded =
-      saf.listFiles(myGrantedUri, columns: columns);
+  List<DocumentFile> files = [];
+  Stream<DocumentFile> onNewFileLoaded = listFiles(musicUri, columns: columns);
+  Stream<DocumentFile> onPlaylistLoaded =
+      listFiles(playlistUriPath, columns: columns);
 
-  await for (saf.DocumentFile file in onNewFileLoaded) {
+  await for (DocumentFile file in onNewFileLoaded) {
+    if (file.type == 'audio/mpeg' || file.type == 'audio/x-mpegurl') {
+      files.add(file);
+    }
+  }
+  await for (DocumentFile file in onPlaylistLoaded) {
     if (file.type == 'audio/mpeg' || file.type == 'audio/x-mpegurl') {
       files.add(file);
     }
   }
   //Iterable<FileSystemEntity> files = ignoredListSync(dir);
+  logger.d(files);
 
   List<Audio> songs = [];
   List<Playlist> playlists = [];

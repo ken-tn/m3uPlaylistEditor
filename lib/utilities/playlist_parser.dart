@@ -15,11 +15,12 @@ Future<Playlist> toPlaylist(DocumentFile file) async {
     return Playlist(path: file.uri.path, songs: []);
   }
 
-  File.fromRawPath(content)
-      .openRead()
-      .map(utf8.decode)
-      .transform(const LineSplitter())
+  const splitter = LineSplitter();
+  splitter
+      .convert(String.fromCharCodes(content))
       .forEach((l) => {songs.add(l)});
+
+  logger.d('songs: $songs');
 
   return Playlist(path: file.uri.path, songs: songs);
 }
