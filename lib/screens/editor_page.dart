@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:logger/logger.dart';
 import 'package:m3u_playlist/models/audio_model.dart';
 import 'package:m3u_playlist/utilities/app_state.dart';
 import 'package:m3u_playlist/widgets/editor_widget.dart';
 import 'package:provider/provider.dart';
+
+import '../utilities/log.dart';
 
 class EditorPage extends StatefulWidget {
   const EditorPage({super.key});
@@ -14,9 +15,6 @@ class EditorPage extends StatefulWidget {
 
 // TODO: 'Modified',
 final List<String> dropDown = <String>['Artist', 'Title', 'Album'];
-var logger = Logger(
-  printer: PrettyPrinter(),
-);
 
 class _EditorPage extends State<EditorPage> {
   final TextEditingController _searchController = TextEditingController();

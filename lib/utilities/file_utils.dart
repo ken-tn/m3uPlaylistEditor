@@ -1,19 +1,16 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:device_info_plus/device_info_plus.dart';
-import 'package:logger/logger.dart';
 import 'package:m3u_playlist/models/audio_model.dart';
 import 'package:m3u_playlist/models/playlist_model.dart';
 import 'package:m3u_playlist/utilities/sql_utils.dart';
 import 'package:path/path.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_storage/shared_storage.dart';
 
+import 'log.dart';
 import 'mp3_parser.dart';
 import 'playlist_parser.dart';
-
-final logger = Logger();
 
 const Map<String, Function> audioFileFormats = {
   'audio/mpeg': toMP3,
@@ -32,13 +29,13 @@ Future<void> _requestPermissions() async {
     var androidInfo = await DeviceInfoPlugin().androidInfo;
     final int sdkInt = androidInfo.version.sdkInt;
     if (sdkInt <= 29) {
-      await [
-        Permission.storage,
-      ].request();
+      // await [
+      //   Permission.storage,
+      // ].request();
     } else if (sdkInt >= 30) {
-      await [
-        Permission.manageExternalStorage,
-      ].request();
+      // await [
+      //   Permission.manageExternalStorage,
+      // ].request();
     }
 
     return;
@@ -102,16 +99,15 @@ List<FileSystemEntity> ignoredListSync(Directory currentDir,
 }
 
 Future<Uri?> hasSafPermission(Uri uri) async {
-  List<UriPermission>? grantedUris = await persistedUriPermissions();
+  List<UriPermission> grantedUris = await persistedUriPermissions() ?? [];
   logger.d('Granted URIs: $grantedUris');
+  if (grantedUris.isEmpty) {
+    return null;
+  }
 
-  if (grantedUris != null) {
-    if (grantedUris.isNotEmpty) {
-      for (UriPermission permission in grantedUris) {
-        if (permission.uri == uri) {
-          return permission.uri;
-        }
-      }
+  for (UriPermission permission in grantedUris) {
+    if (permission.uri == uri) {
+      return permission.uri;
     }
   }
 
@@ -135,59 +131,78 @@ String toRealPath(String uriPath) {
   return '/storage/emulated/0/$asdf';
 }
 
+const List<DocumentFileColumn> columns = <DocumentFileColumn>[
+  DocumentFileColumn.displayName,
+  DocumentFileColumn.mimeType,
+];
+Future<List<DocumentFile>> recursiveListFiles(Uri directoryUri) async {
+  if (directoryUri.path.contains('.thumbnails')) {
+    return [];
+  }
+
+  bool hasPermission = await canRead(directoryUri) ?? false;
+  if (!hasPermission) {
+    logger.d('Failed to read $directoryUri.');
+    return [];
+  }
+
+  logger.d(directoryUri);
+  List<DocumentFile> unfilteredfiles = [];
+  Stream<DocumentFile> stream = listFiles(directoryUri, columns: columns);
+
+  // take files from the stream and close it
+  StreamSubscription sub = stream.listen((file) {
+    unfilteredfiles.add(file);
+  });
+  await sub.asFuture();
+  sub.cancel();
+
+  List<DocumentFile> files = [];
+  for (DocumentFile file in unfilteredfiles) {
+    logger.d('Found ${file.name}.');
+    if (file.isDirectory ?? false) {
+      files.addAll(await recursiveListFiles(file.uri));
+    } else if (file.type == 'audio/mpeg' || file.type == 'audio/x-mpegurl') {
+      files = [...files, file];
+    }
+  }
+
+  return files;
+}
+
 Future<List> playlistsAndAudio() async {
   //await _requestPermissions();
-  final Uri musicUri = Uri.parse(
-      'content://com.android.externalstorage.documents/tree/primary%3AMusic');
-  final Uri playlistUri = Uri.parse(
-      'content://com.android.externalstorage.documents/tree/primary%3APlaylists');
-
-  await waitSafPermission(musicUri);
-  await waitSafPermission(playlistUri);
-
-  const List<DocumentFileColumn> columns = <DocumentFileColumn>[
-    DocumentFileColumn.displayName,
-    DocumentFileColumn.mimeType,
-  ];
-  List<DocumentFile> files = [];
-  Stream<DocumentFile> onNewFileLoaded = listFiles(musicUri, columns: columns);
-  Stream<DocumentFile> onPlaylistLoaded =
-      listFiles(playlistUri, columns: columns);
-
-  await for (DocumentFile file in onNewFileLoaded) {
-    if (file.type == 'audio/mpeg' || file.type == 'audio/x-mpegurl') {
-      files.add(file);
-    }
-  }
-  await for (DocumentFile file in onPlaylistLoaded) {
-    if (file.type == 'audio/mpeg' || file.type == 'audio/x-mpegurl') {
-      files.add(file);
-    }
-  }
-  //Iterable<FileSystemEntity> files = ignoredListSync(dir);
-  logger.d(files);
-
   List<Audio> songs = [];
   List<Playlist> playlists = [];
-  logger.d("Asynchronously loading playlists and audio.");
-  await Future.forEach(files, (entity) async {
-    // apply parser to matching file format
-    for (var entry in audioFileFormats.entries) {
-      if (entity.type == entry.key) {
-        songs.add(await entry.value(entity));
+
+  if (Platform.isAndroid) {
+    final Uri musicUri = Uri.parse(
+        'content://com.android.externalstorage.documents/tree/primary%3AMusic');
+    final Uri playlistUri = Uri.parse(
+        'content://com.android.externalstorage.documents/tree/primary%3APlaylists');
+
+    await waitSafPermission(musicUri);
+    await waitSafPermission(playlistUri);
+
+    List<DocumentFile> audioFiles = await recursiveListFiles(musicUri);
+    List<DocumentFile> playlistFiles = await recursiveListFiles(playlistUri);
+    logger.d('Finished SAF files');
+
+    logger.d("Asynchronously loading playlists and audio.");
+    for (DocumentFile entity in audioFiles) {
+      for (var entry in audioFileFormats.entries) {
+        if (entity.type == entry.key) {
+          songs.add(await entry.value(entity));
+        }
       }
     }
 
-    // // parse playlist
-    if (entity.type == 'audio/x-mpegurl') {
-      playlists.add(await toPlaylist(entity));
+    for (DocumentFile entity in playlistFiles) {
+      if (entity.type == 'audio/x-mpegurl') {
+        playlists.add(await toPlaylist(entity));
+      }
     }
-  });
-
-  // List<Audio> songs = [];
-  // await Future.forEach(unresolved, (element) async => songs.add(await element));
-
-  logger.d([playlists, songs]);
+  }
   logger.d("Parsed all audio");
 
   Future.forEach(playlists, (element) => insertPlaylist(element));

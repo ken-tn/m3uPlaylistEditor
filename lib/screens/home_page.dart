@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:logger/logger.dart';
 import 'package:m3u_playlist/utilities/app_state.dart';
 import 'package:m3u_playlist/utilities/file_utils.dart';
 import 'package:m3u_playlist/widgets/playlist_widget.dart';
 import 'package:provider/provider.dart';
 
-var logger = Logger(
-  printer: PrettyPrinter(),
-);
+import '../utilities/log.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});

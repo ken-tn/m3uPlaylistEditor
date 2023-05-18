@@ -1,9 +1,6 @@
 import 'dart:convert';
 
-import 'package:logger/logger.dart';
 import 'package:path/path.dart';
-
-final logger = Logger();
 
 class Audio {
   final String path;
@@ -122,13 +119,16 @@ class Audio {
     }
 
     /*
-    get first number from track
-    track examples: 4/13, 4
+    track examples: 4/13, 4, C4
     */
 
-    final firstInt = RegExp('^[0-9]+');
-    return int.parse(firstInt.firstMatch(tags['track'])?.group(0) as String)
-        .compareTo(int.parse(
-            firstInt.firstMatch(other.tags['track'])?.group(0) as String));
+    return tags['track']
+        .toLowerCase()
+        .compareTo(other.tags['track'].toLowerCase());
+  }
+
+  @override
+  String toString() {
+    return 'Audio{name: ${name()}}';
   }
 }

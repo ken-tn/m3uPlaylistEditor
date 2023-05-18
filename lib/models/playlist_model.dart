@@ -2,12 +2,11 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:logger/logger.dart';
 import 'package:m3u_playlist/models/audio_model.dart';
 import 'package:path/path.dart';
 import 'package:shared_storage/saf.dart';
 
-final logger = Logger();
+import '../utilities/log.dart';
 
 class Playlist {
   final String path;
@@ -109,7 +108,7 @@ class Playlist {
   }
 
   String name() {
-    return Uri.decodeFull(basename(path));
+    return basename(Uri.decodeFull(path));
   }
 
   Future<bool?> save(List<Audio> songs) async {
@@ -135,6 +134,6 @@ class Playlist {
 
   @override
   String toString() {
-    return 'Playlist{path: $path songs: ${songs.length}';
+    return 'Playlist{path: $path, songs: ${songs.length}}';
   }
 }
