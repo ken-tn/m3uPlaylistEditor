@@ -90,13 +90,15 @@ class _EditorPage extends State<EditorPage> {
                         saveActionButton(appState),
                       ],
                     ),
-                    body: EditorWidget(
-                      filteredSongs: filteredSongs,
-                      onSave: (List<Audio> loadedSongs) {
-                        _playlistAudios = loadedSongs;
-                      },
-                      dropdownValue: dropdownValue,
-                    ),
+                    body: snapshot.hasData
+                        ? EditorWidget(
+                            filteredSongs: filteredSongs,
+                            onSave: (List<Audio> loadedSongs) {
+                              _playlistAudios = loadedSongs;
+                            },
+                            dropdownValue: dropdownValue,
+                          )
+                        : const Center(child: CircularProgressIndicator()),
                   );
                 } else {
                   // Landscape
