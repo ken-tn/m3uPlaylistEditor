@@ -4,8 +4,6 @@ import 'package:m3u_playlist/utilities/file_utils.dart';
 import 'package:m3u_playlist/widgets/playlist_widget.dart';
 import 'package:provider/provider.dart';
 
-import '../utilities/log.dart';
-
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -20,7 +18,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     var appState = context.watch<AppState>();
-    var musicData = appState.musicData;
+    var playlists = appState.playlists;
 
     Future<void> pullRefresh() async {
       appState.updateMusicData();
@@ -70,7 +68,7 @@ class _HomePageState extends State<HomePage> {
                                             Text('Created playlist $name.m3u'),
                                       ),
                                     ),
-                                    pullRefresh(),
+                                    appState.updatePlaylists(),
                                     Navigator.of(context).pop(),
                                   });
                             }
@@ -94,7 +92,7 @@ class _HomePageState extends State<HomePage> {
     }
 
     return FutureBuilder<List>(
-      future: musicData,
+      future: playlists,
       builder: (context, AsyncSnapshot<List<dynamic>> snapshot) {
         return OrientationBuilder(builder: (context, orientation) {
           return Scaffold(

@@ -3,7 +3,7 @@ import 'package:logger/logger.dart';
 Logger get logger => Log.instance;
 
 class Log extends Logger {
-  Log._() : super(output: buffer, printer: SimplePrinter(/*printTime: true*/));
+  Log._() : super(output: buffer, printer: PrettyPrinter(/*printTime: true*/));
   static final instance = Log._();
 }
 

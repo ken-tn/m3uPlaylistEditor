@@ -50,13 +50,13 @@ class _EditorPage extends State<EditorPage> {
   @override
   Widget build(BuildContext context) {
     var appState = context.watch<AppState>();
-    var musicData = appState.musicData;
+    var audio = appState.audio;
 
     return FutureBuilder<List>(
-        future: musicData,
+        future: audio,
         builder: (context, AsyncSnapshot<List<dynamic>> snapshot) {
           if (snapshot.hasData) {
-            _songData = snapshot.data![1];
+            _songData = snapshot.data! as List<Audio>;
             if (filteredSongs.isEmpty && _searchController.text.isEmpty) {
               filteredSongs = _songData;
             }

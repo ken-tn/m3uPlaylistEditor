@@ -67,7 +67,7 @@ class _PlaylistWidget extends State<PlaylistWidget> {
       var snapshot = widget.snapshot;
       if (snapshot.hasData) {
         appState.stopTimer();
-        var playlists = snapshot.data![0];
+        var playlists = snapshot.data!;
 
         if (playlists.isEmpty) {
           return const Center(

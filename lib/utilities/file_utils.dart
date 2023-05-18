@@ -170,25 +170,49 @@ Future<List<DocumentFile>> recursiveListFiles(Uri directoryUri) async {
   return files;
 }
 
-Future<List> playlistsAndAudio() async {
+Future? isLoading;
+Future<List<Playlist>> loadPlaylists() async {
+  if (isLoading != null) {
+    await isLoading;
+  }
+  final Completer completer = Completer<bool>();
+  isLoading = completer.future;
+  List<Playlist> playlists = [];
+
+  if (Platform.isAndroid) {
+    final Uri playlistUri = Uri.parse(
+        'content://com.android.externalstorage.documents/tree/primary%3APlaylists');
+    await waitSafPermission(playlistUri);
+
+    List<DocumentFile> playlistFiles = await recursiveListFiles(playlistUri);
+    logger.d("Asynchronously loading playlists.");
+    for (DocumentFile entity in playlistFiles) {
+      if (entity.type == 'audio/x-mpegurl') {
+        playlists.add(await toPlaylist(entity));
+      }
+    }
+  }
+
+  completer.complete(true);
+  logger.d("Parsed all playlists");
+  return playlists;
+}
+
+Future<List<Audio>> loadAudio() async {
+  if (isLoading != null) {
+    await isLoading;
+  }
+  final Completer completer = Completer<bool>();
   //await _requestPermissions();
   List<Audio> songs = [];
-  List<Playlist> playlists = [];
 
   if (Platform.isAndroid) {
     final Uri musicUri = Uri.parse(
         'content://com.android.externalstorage.documents/tree/primary%3AMusic');
-    final Uri playlistUri = Uri.parse(
-        'content://com.android.externalstorage.documents/tree/primary%3APlaylists');
-
     await waitSafPermission(musicUri);
-    await waitSafPermission(playlistUri);
 
     List<DocumentFile> audioFiles = await recursiveListFiles(musicUri);
-    List<DocumentFile> playlistFiles = await recursiveListFiles(playlistUri);
-    logger.d('Finished SAF files');
-
-    logger.d("Asynchronously loading playlists and audio.");
+    logger.d("Asynchronously loading audio.");
     for (DocumentFile entity in audioFiles) {
       for (var entry in audioFileFormats.entries) {
         if (entity.type == entry.key) {
@@ -196,16 +220,9 @@ Future<List> playlistsAndAudio() async {
         }
       }
     }
-
-    for (DocumentFile entity in playlistFiles) {
-      if (entity.type == 'audio/x-mpegurl') {
-        playlists.add(await toPlaylist(entity));
-      }
-    }
   }
+
+  completer.complete(true);
   logger.d("Parsed all audio");
-
-  Future.forEach(playlists, (element) => insertPlaylist(element));
-
-  return [playlists, songs];
+  return songs;
 }

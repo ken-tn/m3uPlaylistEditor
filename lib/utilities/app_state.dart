@@ -5,11 +5,13 @@ import 'package:flutter/material.dart';
 import 'package:m3u_playlist/models/playlist_model.dart';
 import 'package:m3u_playlist/utilities/file_utils.dart';
 
+import '../models/audio_model.dart';
 import 'log.dart';
 
 class AppState extends ChangeNotifier {
   bool isLoading = false;
-  Future<List> musicData = playlistsAndAudio();
+  Future<List<Playlist>> playlists = loadPlaylists();
+  Future<List<Audio>> audio = loadAudio();
   late Playlist selectedPlaylist;
   String consoleText = '';
   Timer? timer;
@@ -45,6 +47,20 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
+  void updatePlaylists() async {
+    if (isLoading) {
+      return;
+    }
+
+    isLoading = true;
+    Future<List<Playlist>> newPlaylists = loadPlaylists();
+    await newPlaylists;
+    playlists = newPlaylists;
+
+    isLoading = false;
+    notifyListeners();
+  }
+
   void updateMusicData() async {
     if (isLoading) {
       return;
@@ -52,11 +68,12 @@ class AppState extends ChangeNotifier {
 
     isLoading = true;
     // load in background
-    Future<List> newMusicData = playlistsAndAudio();
-    await newMusicData;
-
-    // apply new loaded data
-    musicData = newMusicData;
+    Future<List<Playlist>> newPlaylists = loadPlaylists();
+    await newPlaylists;
+    playlists = newPlaylists;
+    Future<List<Audio>> newAudio = loadAudio();
+    await newAudio;
+    audio = newAudio;
     isLoading = false;
     notifyListeners();
   }
