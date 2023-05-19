@@ -17,7 +17,7 @@ const uuid = Uuid();
 Future<Audio> toMP3(DocumentFile file) async {
   // check the database first
   String uripath = toRealPath(file.uri.path);
-  logger.d(uripath);
+  logger.i(uripath);
   List results = await findAudio(uripath);
   if (results.isNotEmpty) {
     logger.d("Loading database entry for $uripath");

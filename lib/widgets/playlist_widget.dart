@@ -61,12 +61,10 @@ class _PlaylistWidget extends State<PlaylistWidget> {
   @override
   Widget build(BuildContext context) {
     var appState = context.watch<AppState>();
-    String consoleText = appState.consoleText;
 
     return LayoutBuilder(builder: (context, constraints) {
       var snapshot = widget.snapshot;
       if (snapshot.hasData) {
-        appState.stopTimer();
         var playlists = snapshot.data!;
 
         if (playlists.isEmpty) {
@@ -101,18 +99,13 @@ class _PlaylistWidget extends State<PlaylistWidget> {
           ),
         );
       } else {
-        appState.startTimer();
-
         return Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Padding(
+            children: const [
+              Padding(
                 padding: EdgeInsets.all(16.0),
                 child: CircularProgressIndicator(),
-              ),
-              Text(
-                consoleText,
               ),
             ],
           ),
