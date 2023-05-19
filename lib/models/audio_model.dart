@@ -29,7 +29,6 @@ class Audio {
     return {
       'path': path,
       'filetype': fileType,
-      'lastModified': lastModified,
       'tags': json.encode(tags),
     };
   }
