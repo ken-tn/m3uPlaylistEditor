@@ -204,24 +204,43 @@ Future<List<Audio>> loadAudio() async {
   }
   final Completer completer = Completer<bool>();
   //await _requestPermissions();
-  List<Audio> songs = [];
 
+  List<Audio> songs = [];
+  List<Future<Audio>> parsingSongs = [];
   if (Platform.isAndroid) {
     final Uri musicUri = Uri.parse(
         'content://com.android.externalstorage.documents/tree/primary%3AMusic');
     await waitSafPermission(musicUri);
 
+    int processing = 0;
+    int batchSize = 9;
     List<DocumentFile> audioFiles = await recursiveListFiles(musicUri);
     logger.d("Asynchronously loading audio.");
     for (DocumentFile entity in audioFiles) {
       for (var entry in audioFileFormats.entries) {
         if (entity.type == entry.key) {
-          songs.add(await entry.value(entity));
+          // process in batches of batchSize
+          if (processing > batchSize) {
+            await Future.wait(parsingSongs).then(
+              (loadedAudios) => {
+                songs.addAll(loadedAudios),
+                parsingSongs = [],
+                processing = 0,
+              },
+            );
+          }
+          processing++;
+          Future<Audio> parsedAudio = entry.value(entity);
+          parsingSongs.add(parsedAudio);
         }
       }
     }
   }
 
+  // wait for the last futures to finish
+  await Future.wait(parsingSongs).then(
+    (loadedAudios) => {songs.addAll(loadedAudios)},
+  );
   completer.complete(true);
   logger.d("Parsed all audio");
   return songs;

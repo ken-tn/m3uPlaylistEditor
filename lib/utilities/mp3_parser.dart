@@ -29,10 +29,11 @@ Future<Audio> toMP3(DocumentFile file) async {
         tags: json.decode(entry[2]) as Map<String, dynamic>);
   }
 
-  Directory documentsDirectory = await getApplicationDocumentsDirectory();
-  String coverPath = documentsDirectory.path;
-  String imagePath = "$coverPath/${uuid.v4()}.jpg";
-  File mp3copy = File("${(await getTemporaryDirectory()).path}/temp.mp3");
+  Directory supportDirectory = await getApplicationSupportDirectory();
+  String coverPath = supportDirectory.path;
+  String coverName = uuid.v4();
+  String imagePath = "$coverPath/$coverName.jpg";
+  File mp3copy = File("${(await getTemporaryDirectory()).path}/$coverName.mp3");
   mp3copy.writeAsBytes((await file.getContent())!);
   final session = await FFprobeKit.getMediaInformation(mp3copy.path);
   final information = session.getMediaInformation();
@@ -59,6 +60,7 @@ Future<Audio> toMP3(DocumentFile file) async {
     logger.e(returnCode, failStackTrace);
 
     // TODO: This could lock the app if a file is corrupt
+    mp3copy.delete();
     return await toMP3(file);
   }
 
