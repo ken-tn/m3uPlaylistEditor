@@ -132,6 +132,7 @@ String toRealPath(String uriPath) {
 
 const List<DocumentFileColumn> columns = <DocumentFileColumn>[
   DocumentFileColumn.displayName,
+  DocumentFileColumn.lastModified,
   DocumentFileColumn.mimeType,
 ];
 Future<List<DocumentFile>> recursiveListFiles(Uri directoryUri) async {

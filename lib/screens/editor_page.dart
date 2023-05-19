@@ -13,8 +13,7 @@ class EditorPage extends StatefulWidget {
   State<EditorPage> createState() => _EditorPage();
 }
 
-// TODO: 'Modified',
-final List<String> dropDown = <String>['Artist', 'Title', 'Album'];
+final List<String> dropDown = <String>['Modified', 'Artist', 'Title', 'Album'];
 
 class _EditorPage extends State<EditorPage> {
   final TextEditingController _searchController = TextEditingController();

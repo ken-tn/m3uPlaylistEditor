@@ -19,13 +19,15 @@ Future<Audio> toMP3(DocumentFile file) async {
   String uripath = toRealPath(file.uri.path);
   logger.i(uripath);
   List results = await findAudio(uripath);
+  int lastModified = file.lastModified!.millisecondsSinceEpoch;
   if (results.isNotEmpty) {
     logger.d("Loading database entry for $uripath");
     var entry = results[0].row;
 
     return Audio(
         path: entry[0],
-        filetype: entry[1],
+        fileType: entry[1],
+        lastModified: lastModified,
         tags: json.decode(entry[2]) as Map<String, dynamic>);
   }
 
@@ -45,12 +47,7 @@ Future<Audio> toMP3(DocumentFile file) async {
 
     logger.d(commandArguments);
   });
-
-  Audio audio = Audio(
-    path: uripath,
-    filetype: 'Mp3',
-    tags: {},
-  );
+  mp3copy.delete();
 
   if (information == null) {
     // CHECK THE FOLLOWING ATTRIBUTES ON ERROR
@@ -60,12 +57,19 @@ Future<Audio> toMP3(DocumentFile file) async {
     logger.e(returnCode, failStackTrace);
 
     // TODO: This could lock the app if a file is corrupt
-    mp3copy.delete();
+
     session.cancel();
     return await toMP3(file);
   }
 
   session.cancel();
+  Audio audio = Audio(
+    path: uripath,
+    fileType: 'Mp3',
+    lastModified: lastModified,
+    tags: {},
+  );
+
   if (await File(imagePath).exists()) {
     audio.tags['cover'] = imagePath.substring(1);
     logger.d("Set cover for $uripath.");
@@ -78,7 +82,6 @@ Future<Audio> toMP3(DocumentFile file) async {
     logger.d(audio.tags);
 
     insertAudio(audio);
-    mp3copy.delete();
     return audio;
   }
 

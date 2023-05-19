@@ -43,7 +43,8 @@ class Playlist {
         // no audio found, add null entry
         mapped.add(Audio(
           path: path,
-          filetype: extension(path),
+          fileType: extension(path),
+          lastModified: 0,
           tags: {'isMissing': true},
         ));
       }

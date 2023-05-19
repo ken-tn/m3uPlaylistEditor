@@ -4,12 +4,14 @@ import 'package:path/path.dart';
 
 class Audio {
   final String path;
-  final String filetype;
+  final String fileType;
+  final int lastModified;
   final Map<String, dynamic> tags;
 
   const Audio({
     required this.path,
-    required this.filetype,
+    required this.fileType,
+    required this.lastModified,
     required this.tags,
   });
 
@@ -26,17 +28,14 @@ class Audio {
   Map<String, dynamic> toMap() {
     return {
       'path': path,
-      'filetype': filetype,
+      'filetype': fileType,
+      'lastModified': lastModified,
       'tags': json.encode(tags),
     };
   }
 
-  int compareDateModified(Audio other) {
-    // ~long sigh
-    // File file = File(path);
-    // File otherFile = File(other.path);
-
-    return 0; //file.lastModifiedSync().compareTo(otherFile.lastAccessedSync());
+  int compareLastModified(Audio other) {
+    return lastModified.compareTo(other.lastModified);
   }
 
   int compareTitle(Audio other) {
