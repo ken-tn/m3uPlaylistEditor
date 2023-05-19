@@ -61,9 +61,11 @@ Future<Audio> toMP3(DocumentFile file) async {
 
     // TODO: This could lock the app if a file is corrupt
     mp3copy.delete();
+    session.cancel();
     return await toMP3(file);
   }
 
+  session.cancel();
   if (await File(imagePath).exists()) {
     audio.tags['cover'] = imagePath.substring(1);
     logger.d("Set cover for $uripath.");
@@ -77,7 +79,6 @@ Future<Audio> toMP3(DocumentFile file) async {
 
     insertAudio(audio);
     mp3copy.delete();
-
     return audio;
   }
 

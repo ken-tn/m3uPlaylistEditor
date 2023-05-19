@@ -70,36 +70,47 @@ class _EditorPage extends State<EditorPage> {
                 if (orientation == Orientation.portrait) {
                   // Portrait
                   return Scaffold(
-                    // prevents keyboard from resizing body which rotates screen
-                    resizeToAvoidBottomInset: false,
-                    appBar: AppBar(
-                      title: Row(children: [
-                        SortByWidget(
-                          dropdownValue: dropdownValue,
-                          onChanged: (value) => setState(() {
-                            dropdownValue = value;
-                          }),
-                        ),
-                        const Padding(padding: EdgeInsets.all(10.0)),
-                        SearchWidget(
-                          width: 100,
-                          controller: _searchController,
-                        ),
-                      ]),
-                      actions: [
-                        saveActionButton(appState),
-                      ],
-                    ),
-                    body: snapshot.hasData
-                        ? EditorWidget(
-                            filteredSongs: filteredSongs,
-                            onSave: (List<Audio> loadedSongs) {
-                              _playlistAudios = loadedSongs;
-                            },
+                      // prevents keyboard from resizing body which rotates screen
+                      resizeToAvoidBottomInset: false,
+                      appBar: AppBar(
+                        title: Row(children: [
+                          SortByWidget(
                             dropdownValue: dropdownValue,
-                          )
-                        : const Center(child: CircularProgressIndicator()),
-                  );
+                            onChanged: (value) => setState(() {
+                              dropdownValue = value;
+                            }),
+                          ),
+                          const Padding(padding: EdgeInsets.all(10.0)),
+                          SearchWidget(
+                            width: 100,
+                            controller: _searchController,
+                          ),
+                        ]),
+                        actions: [
+                          saveActionButton(appState),
+                        ],
+                      ),
+                      body: snapshot.hasData
+                          ? EditorWidget(
+                              filteredSongs: filteredSongs,
+                              onSave: (List<Audio> loadedSongs) {
+                                _playlistAudios = loadedSongs;
+                              },
+                              dropdownValue: dropdownValue,
+                            )
+                          : Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: const [
+                                  Padding(
+                                    padding: EdgeInsets.all(16.0),
+                                    child: CircularProgressIndicator(),
+                                  ),
+                                  Text(
+                                      'This can take a few minutes on first launch.')
+                                ],
+                              ),
+                            ));
                 } else {
                   // Landscape
                   return Scaffold(

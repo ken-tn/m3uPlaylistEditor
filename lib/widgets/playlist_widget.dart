@@ -99,17 +99,7 @@ class _PlaylistWidget extends State<PlaylistWidget> {
           ),
         );
       } else {
-        return Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: const [
-              Padding(
-                padding: EdgeInsets.all(16.0),
-                child: CircularProgressIndicator(),
-              ),
-            ],
-          ),
-        );
+        return const Center(child: CircularProgressIndicator());
       }
     });
   }

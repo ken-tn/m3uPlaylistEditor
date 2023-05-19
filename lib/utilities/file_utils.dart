@@ -4,7 +4,6 @@ import 'dart:io';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:m3u_playlist/models/audio_model.dart';
 import 'package:m3u_playlist/models/playlist_model.dart';
-import 'package:m3u_playlist/utilities/sql_utils.dart';
 import 'package:path/path.dart';
 import 'package:shared_storage/shared_storage.dart';
 
@@ -213,7 +212,7 @@ Future<List<Audio>> loadAudio() async {
     await waitSafPermission(musicUri);
 
     int processing = 0;
-    int batchSize = 9;
+    int batchSize = 20;
     List<DocumentFile> audioFiles = await recursiveListFiles(musicUri);
     logger.d("Asynchronously loading audio.");
     for (DocumentFile entity in audioFiles) {
