@@ -19,8 +19,6 @@ Future<Audio> toMP3(DocumentFile file) async {
   String uripath = toRealPath(file.uri.path);
   logger.d(uripath);
   List results = await findAudio(uripath);
-  File mp3pain = File("${(await getTemporaryDirectory()).path}/pain.mp3");
-  mp3pain.writeAsBytes((await file.getContent())!);
   if (results.isNotEmpty) {
     logger.d("Loading database entry for $uripath");
     var entry = results[0].row;
@@ -33,12 +31,13 @@ Future<Audio> toMP3(DocumentFile file) async {
 
   Directory documentsDirectory = await getApplicationDocumentsDirectory();
   String coverPath = documentsDirectory.path;
-  String imageUUID = uuid.v4();
-  String imagePath = "$coverPath/$imageUUID.jpg";
-  final session = await FFprobeKit.getMediaInformation(mp3pain.path);
+  String imagePath = "$coverPath/${uuid.v4()}.jpg";
+  File mp3copy = File("${(await getTemporaryDirectory()).path}/temp.mp3");
+  mp3copy.writeAsBytes((await file.getContent())!);
+  final session = await FFprobeKit.getMediaInformation(mp3copy.path);
   final information = session.getMediaInformation();
   await FFmpegKit.execute(
-          '-i "${mp3pain.path}" -an -vcodec copy -frames:v 1 -update 1 "$imagePath"')
+          '-i "${mp3copy.path}" -an -vcodec copy -frames:v 1 -update 1 "$imagePath"')
       .then((session) async {
     // Command arguments
     final commandArguments = session.getArguments();
@@ -54,11 +53,13 @@ Future<Audio> toMP3(DocumentFile file) async {
 
   if (information == null) {
     // CHECK THE FOLLOWING ATTRIBUTES ON ERROR
-    logger.d("Failed to get information on $uripath.");
-    final returnCode = session.getReturnCode();
-    final failStackTrace = session.getFailStackTrace();
-    logger.d(returnCode, failStackTrace);
-    return audio;
+    logger.e("Failed to get information on $uripath.");
+    final returnCode = await session.getReturnCode();
+    final failStackTrace = await session.getFailStackTrace();
+    logger.e(returnCode, failStackTrace);
+
+    // TODO: This could lock the app if a file is corrupt
+    return await toMP3(file);
   }
 
   if (await File(imagePath).exists()) {
@@ -73,7 +74,7 @@ Future<Audio> toMP3(DocumentFile file) async {
     logger.d(audio.tags);
 
     insertAudio(audio);
-    mp3pain.delete();
+    mp3copy.delete();
 
     return audio;
   }
