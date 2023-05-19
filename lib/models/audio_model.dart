@@ -1,16 +1,17 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:path/path.dart';
 
 class Audio {
   final String path;
-  final String filetype;
+  final String fileType;
+  final int lastModified;
   final Map<String, dynamic> tags;
 
   const Audio({
     required this.path,
-    required this.filetype,
+    required this.fileType,
+    required this.lastModified,
     required this.tags,
   });
 
@@ -27,16 +28,13 @@ class Audio {
   Map<String, dynamic> toMap() {
     return {
       'path': path,
-      'filetype': filetype,
+      'filetype': fileType,
       'tags': json.encode(tags),
     };
   }
 
-  int compareDateModified(Audio other) {
-    File file = File(path);
-    File otherFile = File(other.path);
-
-    return file.lastModifiedSync().compareTo(otherFile.lastAccessedSync());
+  int compareLastModified(Audio other) {
+    return lastModified.compareTo(other.lastModified);
   }
 
   int compareTitle(Audio other) {
@@ -119,13 +117,16 @@ class Audio {
     }
 
     /*
-    get first number from track
-    track examples: 4/13, 4
+    track examples: 4/13, 4, C4
     */
 
-    final firstInt = RegExp('^[0-9]+');
-    return int.parse(firstInt.firstMatch(tags['track'])?.group(0) as String)
-        .compareTo(int.parse(
-            firstInt.firstMatch(other.tags['track'])?.group(0) as String));
+    return tags['track']
+        .toLowerCase()
+        .compareTo(other.tags['track'].toLowerCase());
+  }
+
+  @override
+  String toString() {
+    return 'Audio{name: ${name()}}';
   }
 }

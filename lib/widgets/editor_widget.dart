@@ -38,7 +38,7 @@ class _EditorWidget extends State<EditorWidget> {
       widget.onSave(loadedSongs);
       switch (sortType) {
         case 'Modified':
-          songs.sort((a, b) => a.compareDateModified(b));
+          songs.sort((a, b) => a.compareLastModified(b));
           songs = songs.reversed.toList();
           break;
         case 'Artist':

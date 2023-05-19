@@ -1,12 +1,12 @@
+import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
-import 'package:logger/logger.dart';
 import 'package:m3u_playlist/models/audio_model.dart';
 import 'package:path/path.dart';
+import 'package:shared_storage/saf.dart';
 
-var logger = Logger(
-  printer: PrettyPrinter(),
-);
+import '../utilities/log.dart';
 
 class Playlist {
   final String path;
@@ -43,7 +43,8 @@ class Playlist {
         // no audio found, add null entry
         mapped.add(Audio(
           path: path,
-          filetype: extension(path),
+          fileType: extension(path),
+          lastModified: 0,
           tags: {'isMissing': true},
         ));
       }
@@ -108,11 +109,14 @@ class Playlist {
   }
 
   String name() {
-    return basename(path);
+    return basename(Uri.decodeFull(path));
   }
 
-  Future<File> save(List<Audio> songs) async {
+  Future<bool?> save(List<Audio> songs) async {
     logger.d("Attempting to save.");
+    Uri playlistUri =
+        Uri.parse('content://com.android.externalstorage.documents$path');
+
     String output = '';
     for (Audio song in songs) {
       output += '${song.path}\n';
@@ -121,11 +125,16 @@ class Playlist {
     // remove file endline
     output = output.substring(0, output.length - 1);
     logger.d('Saving playlist\n$output');
-    return await File(path).writeAsString(output);
+
+    return await writeToFileAsBytes(
+      playlistUri,
+      bytes: utf8.encode(output) as Uint8List,
+      mode: FileMode.write,
+    );
   }
 
   @override
   String toString() {
-    return 'Playlist{path: $path songs: ${songs.length}';
+    return 'Playlist{path: $path, songs: ${songs.length}}';
   }
 }

@@ -1,4 +1,4 @@
-# m3u_playlist
+# m3uplaylisteditor
 
 M3U playlist editor for Android.
 

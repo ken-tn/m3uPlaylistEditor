@@ -65,7 +65,7 @@ class _PlaylistWidget extends State<PlaylistWidget> {
     return LayoutBuilder(builder: (context, constraints) {
       var snapshot = widget.snapshot;
       if (snapshot.hasData) {
-        var playlists = snapshot.data![0];
+        var playlists = snapshot.data!;
 
         if (playlists.isEmpty) {
           return const Center(

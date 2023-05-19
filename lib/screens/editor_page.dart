@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:logger/logger.dart';
 import 'package:m3u_playlist/models/audio_model.dart';
 import 'package:m3u_playlist/utilities/app_state.dart';
 import 'package:m3u_playlist/widgets/editor_widget.dart';
 import 'package:provider/provider.dart';
+
+import '../utilities/log.dart';
 
 class EditorPage extends StatefulWidget {
   const EditorPage({super.key});
@@ -13,9 +14,6 @@ class EditorPage extends StatefulWidget {
 }
 
 final List<String> dropDown = <String>['Modified', 'Artist', 'Title', 'Album'];
-var logger = Logger(
-  printer: PrettyPrinter(),
-);
 
 class _EditorPage extends State<EditorPage> {
   final TextEditingController _searchController = TextEditingController();
@@ -51,13 +49,13 @@ class _EditorPage extends State<EditorPage> {
   @override
   Widget build(BuildContext context) {
     var appState = context.watch<AppState>();
-    var musicData = appState.musicData;
+    var audio = appState.audio;
 
     return FutureBuilder<List>(
-        future: musicData,
+        future: audio,
         builder: (context, AsyncSnapshot<List<dynamic>> snapshot) {
           if (snapshot.hasData) {
-            _songData = snapshot.data![1];
+            _songData = snapshot.data! as List<Audio>;
             if (filteredSongs.isEmpty && _searchController.text.isEmpty) {
               filteredSongs = _songData;
             }
@@ -71,44 +69,47 @@ class _EditorPage extends State<EditorPage> {
                 if (orientation == Orientation.portrait) {
                   // Portrait
                   return Scaffold(
-                    // prevents keyboard from resizing body
-                    resizeToAvoidBottomInset: false,
-                    appBar: AppBar(
-                      title: Row(children: [
-                        SortByWidget(
-                          dropdownValue: dropdownValue,
-                          onChanged: (value) => setState(() {
-                            dropdownValue = value;
-                          }),
-                        ),
-                        const Padding(padding: EdgeInsets.all(10.0)),
-                        SearchWidget(
-                          width: 100,
-                          controller: _searchController,
-                        ),
-                      ]),
-                      actions: [
-                        IconButton(
-                          icon: const Icon(Icons.save),
-                          tooltip: 'Save',
-                          onPressed: () {
-                            if (_playlistAudios.isEmpty) {
-                              logger.d("Playlist is empty, not saving.");
-                              return;
-                            }
-                            appState.selectedPlaylist.save(_playlistAudios);
-                          },
-                        ),
-                      ],
-                    ),
-                    body: EditorWidget(
-                      filteredSongs: filteredSongs,
-                      onSave: (List<Audio> loadedSongs) {
-                        _playlistAudios = loadedSongs;
-                      },
-                      dropdownValue: dropdownValue,
-                    ),
-                  );
+                      // prevents keyboard from resizing body which rotates screen
+                      resizeToAvoidBottomInset: false,
+                      appBar: AppBar(
+                        title: Row(children: [
+                          SortByWidget(
+                            dropdownValue: dropdownValue,
+                            onChanged: (value) => setState(() {
+                              dropdownValue = value;
+                            }),
+                          ),
+                          const Padding(padding: EdgeInsets.all(10.0)),
+                          SearchWidget(
+                            width: 100,
+                            controller: _searchController,
+                          ),
+                        ]),
+                        actions: [
+                          saveActionButton(appState),
+                        ],
+                      ),
+                      body: snapshot.hasData
+                          ? EditorWidget(
+                              filteredSongs: filteredSongs,
+                              onSave: (List<Audio> loadedSongs) {
+                                _playlistAudios = loadedSongs;
+                              },
+                              dropdownValue: dropdownValue,
+                            )
+                          : Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: const [
+                                  Padding(
+                                    padding: EdgeInsets.all(16.0),
+                                    child: CircularProgressIndicator(),
+                                  ),
+                                  Text(
+                                      'This can take a few minutes on first launch.')
+                                ],
+                              ),
+                            ));
                 } else {
                   // Landscape
                   return Scaffold(
@@ -129,17 +130,7 @@ class _EditorPage extends State<EditorPage> {
                         ),
                       ]),
                       actions: [
-                        IconButton(
-                          icon: const Icon(Icons.save),
-                          tooltip: 'Save',
-                          onPressed: () {
-                            if (_playlistAudios.isEmpty) {
-                              logger.d("Playlist is empty, not saving.");
-                              return;
-                            }
-                            appState.selectedPlaylist.save(_playlistAudios);
-                          },
-                        ),
+                        saveActionButton(appState),
                       ],
                     ),
                     body: EditorWidget(
@@ -155,6 +146,20 @@ class _EditorPage extends State<EditorPage> {
             ),
           );
         });
+  }
+
+  IconButton saveActionButton(AppState appState) {
+    return IconButton(
+      icon: const Icon(Icons.save),
+      tooltip: 'Save',
+      onPressed: () {
+        if (_playlistAudios.isEmpty) {
+          logger.d("Playlist is empty, not saving.");
+          return;
+        }
+        appState.selectedPlaylist.save(_playlistAudios);
+      },
+    );
   }
 }
 

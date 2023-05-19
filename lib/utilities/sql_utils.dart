@@ -1,14 +1,11 @@
 // Define a function that inserts dogs into the database
-import 'package:logger/logger.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
 import 'package:m3u_playlist/models/playlist_model.dart';
 import 'package:m3u_playlist/models/audio_model.dart';
 
-var logger = Logger(
-  printer: PrettyPrinter(),
-);
+import 'log.dart';
 
 const databaseVersion = 6;
 const databaseName = 'm3u_playlist_data.db';
