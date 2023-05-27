@@ -21,7 +21,19 @@ class _HomePageState extends State<HomePage> {
     var playlists = appState.playlists;
 
     Future<void> pullRefresh() async {
-      appState.updateMusicData();
+      appState.updateMusicData().then((value) => {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                duration: const Duration(seconds: 1),
+                content: value
+                    ? const Text('Library refreshed.')
+                    : const Text('Refresh in progress.'),
+              ),
+            ),
+          });
+      // Better to wait for 1 second as the refresh is asynchronous
+      // Could also be done through a snackbar
+      await Future.delayed(const Duration(seconds: 1));
     }
 
     void showAction(BuildContext context) {
@@ -100,7 +112,6 @@ class _HomePageState extends State<HomePage> {
               onPressed: () {
                 showAction(context);
               },
-              backgroundColor: Theme.of(context).colorScheme.primaryContainer,
               child: const Icon(Icons.add),
             ),
             body: RefreshIndicator(

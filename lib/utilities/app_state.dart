@@ -31,9 +31,9 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
-  void updateMusicData() async {
+  Future<bool> updateMusicData() async {
     if (isLoading) {
-      return;
+      return false;
     }
 
     isLoading = true;
@@ -46,5 +46,7 @@ class AppState extends ChangeNotifier {
     audio = newAudio;
     isLoading = false;
     notifyListeners();
+
+    return true;
   }
 }
