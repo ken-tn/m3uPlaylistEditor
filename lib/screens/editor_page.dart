@@ -81,7 +81,7 @@ class _EditorPage extends State<EditorPage> {
                           ),
                           const Padding(padding: EdgeInsets.all(10.0)),
                           SearchWidget(
-                            width: 100,
+                            width: 110,
                             controller: _searchController,
                           ),
                         ]),
@@ -187,7 +187,7 @@ class _SortByWidget extends State<SortByWidget> {
             Padding(
               padding: EdgeInsets.all(3.0),
             ),
-            Icon(Icons.sort, color: Colors.white),
+            Icon(Icons.sort),
           ],
         ),
         items: dropDown.map<DropdownMenuItem<String>>(
@@ -220,6 +220,9 @@ class SearchWidget extends StatefulWidget {
 }
 
 class _SearchWidget extends State<SearchWidget> {
+  // Focus for the search TextField
+  FocusNode focus = FocusNode();
+
   @override
   Widget build(BuildContext context) {
     final controller = widget.controller;
@@ -227,22 +230,34 @@ class _SearchWidget extends State<SearchWidget> {
       width: widget.width,
       child: TextField(
           controller: controller,
-          style: const TextStyle(color: Colors.white),
-          cursorColor: Colors.white,
+          focusNode: focus,
+          onTap: () {
+            FocusScope.of(context).requestFocus(focus);
+          },
           decoration: InputDecoration(
-            hintText: 'Search...',
-            hintStyle: const TextStyle(color: Colors.white54),
+            hintText: focus.hasFocus ? 'Search...' : null,
             border: InputBorder.none,
-            prefixIcon: const Icon(Icons.search),
+            prefixIcon: (focus.hasFocus || controller.text.isNotEmpty)
+                ? null
+                : const Icon(Icons.search),
+            prefixIconConstraints: const BoxConstraints(
+              minWidth: 5,
+              minHeight: 5,
+            ),
             suffixIcon: ClipOval(
               child: Material(
                 color: Colors.transparent,
-                child: IconButton(
-                  iconSize: 20,
-                  onPressed: controller.clear,
-                  icon: const Icon(Icons.clear),
-                ),
+                child: (focus.hasFocus || controller.text.isNotEmpty)
+                    ? IconButton(
+                        onPressed: controller.clear,
+                        icon: const Icon(Icons.clear),
+                      )
+                    : null,
               ),
+            ),
+            suffixIconConstraints: const BoxConstraints(
+              minWidth: 5,
+              minHeight: 5,
             ),
           )),
     );

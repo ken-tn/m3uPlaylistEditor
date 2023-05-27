@@ -13,12 +13,18 @@ class MainApp extends StatelessWidget {
       child: MaterialApp(
         title: 'M3U Editor App',
         theme: ThemeData(
-          brightness: Brightness.light,
+          useMaterial3: true,
+          colorScheme: ColorScheme.fromSeed(
+            brightness: Brightness.light,
+            seedColor: const Color.fromRGBO(108, 157, 135, 1),
+          ),
         ),
         darkTheme: ThemeData(
-          // useMaterial3: true,
-          // colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-          brightness: Brightness.dark,
+          useMaterial3: true,
+          colorScheme: ColorScheme.fromSeed(
+            brightness: Brightness.dark,
+            seedColor: Colors.blue,
+          ),
         ),
         themeMode: ThemeMode.system,
         home: const HomePage(),

@@ -108,7 +108,7 @@ class _EditorWidget extends State<EditorWidget> {
             ListTile(
               key: ValueKey(audio),
               textColor: audio.tags.containsKey('isMissing')
-                  ? Theme.of(context).colorScheme.errorContainer
+                  ? Theme.of(context).colorScheme.error
                   : null,
               subtitle: audio.tags.containsKey('artist')
                   ? Text(audio.tags['artist'] as String)
@@ -217,25 +217,26 @@ class _LeadingIconWidget extends State<LeadingIconWidget> {
   @override
   Widget build(BuildContext context) {
     final audio = widget.audio;
+    final hasCover = audio.tags.containsKey('cover');
+    final coverImage =
+        hasCover ? Image.file(File(audio.tags['cover'])).image : null;
 
-    if (audio.tags.containsKey('cover')) {
-      return Container(
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          shape: BoxShape.circle,
-          boxShadow: [
-            BoxShadow(blurRadius: 10, color: Colors.black, spreadRadius: 1)
-          ],
-        ),
-        child: CircleAvatar(
-          backgroundImage: Image.file(
-            File(audio.tags['cover'] as String),
-          ).image,
-        ),
-      );
-    } else {
-      return const Icon(Icons.music_note);
-    }
+    return Container(
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        shape: BoxShape.circle,
+        boxShadow: [
+          BoxShadow(blurRadius: 10, color: Colors.black, spreadRadius: 1)
+        ],
+      ),
+      child: CircleAvatar(
+        backgroundColor: hasCover
+            ? Theme.of(context).canvasColor
+            : Theme.of(context).colorScheme.errorContainer,
+        backgroundImage: coverImage,
+        child: hasCover ? null : const Icon(Icons.music_note),
+      ),
+    );
   }
 }
 
