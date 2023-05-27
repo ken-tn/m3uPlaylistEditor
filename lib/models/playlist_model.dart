@@ -109,7 +109,7 @@ class Playlist {
   }
 
   String name() {
-    return basename(Uri.decodeFull(path));
+    return basenameWithoutExtension(Uri.decodeFull(path));
   }
 
   Future<bool?> save(List<Audio> songs) async {

@@ -102,10 +102,24 @@ Future<Object?> createPlaylistFile(String name) async {
   //await _requestPermissions();
   final Uri playlistUri = await getPlaylistsUri();
 
-  Directory dir = Directory('/storage/emulated/0/Playlists');
-  File playlistFile = File('${dir.path}/$name.m3u');
-  if (playlistFile.existsSync()) {
-    return playlistFile;
+  const List<DocumentFileColumn> columns = <DocumentFileColumn>[
+    DocumentFileColumn.displayName,
+  ];
+
+  final List<DocumentFile> files = [];
+
+  Stream<DocumentFile> stream = listFiles(playlistUri, columns: columns);
+  // take files from the stream and close it
+  StreamSubscription sub = stream.listen((file) {
+    files.add(file);
+  });
+  await sub.asFuture();
+  sub.cancel();
+
+  for (DocumentFile file in files) {
+    if (basenameWithoutExtension(file.name!) == name) {
+      return file;
+    }
   }
 
   return await createFile(
