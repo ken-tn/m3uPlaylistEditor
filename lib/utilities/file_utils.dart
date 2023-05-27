@@ -55,7 +55,9 @@ Future<void> _requestPermissions() async {
 
 Future<Uri> getPlaylistsUri() async {
   List<UriPermission> grantedUris = await persistedUriPermissions() ?? [];
-  grantedUris.removeWhere((element) => element.uri.path.contains('Music'));
+  grantedUris.removeWhere((element) =>
+      element.uri.path ==
+      'content://com.android.externalstorage.documents/tree/primary%3AMusic');
 
   // This is a first launch
   // App uses permissions to track playlist directories
@@ -63,28 +65,29 @@ Future<Uri> getPlaylistsUri() async {
     // Default to playlists on documents directory
     // If there's no folder the user decide
     late Uri chosenUri;
+    Directory storageDirectory = Directory('/storage/emulated/0/');
 
     // exists on uri doesn't work, but this does
-    if (Directory('/storage/emulated/0/Playlists').existsSync()) {
+    if (Directory('${storageDirectory.path}/Playlists').existsSync()) {
       logger.d('Playlists directory found');
       final Uri playlistUri = Uri.parse(
           'content://com.android.externalstorage.documents/tree/primary%3APlaylists');
 
       chosenUri = await waitSafPermission(playlistUri);
-    } else if (Directory('/storage/emulated/0/Documents/Playlists')
-        .existsSync()) {
-      logger.d('Documents/Playlists directory found');
+    } else {
+      Directory documentsPlaylist =
+          Directory('${storageDirectory.path}/Documents/Playlists');
+      if (!documentsPlaylist.existsSync()) {
+        logger.d('Playlists not found, created directory.');
+        documentsPlaylist.createSync();
+      } else {
+        logger.d('Documents/Playlists directory found');
+      }
+
       final Uri playlistUri = Uri.parse(
           'content://com.android.externalstorage.documents/tree/primary%3ADocuments%2FPlaylists');
 
       chosenUri = await waitSafPermission(playlistUri);
-    } else {
-      logger.d('Playlists not found');
-      // request a directory, then create playlists directory inside
-      final Uri documentsUri = Uri.parse(
-          'content://com.android.externalstorage.documents/tree/primary%3ADocuments');
-      final customUri = await waitSafPermission(documentsUri);
-      chosenUri = (await createDirectory(customUri, 'Playlists'))!.uri;
     }
 
     logger.d("Chosen URI: $chosenUri");
