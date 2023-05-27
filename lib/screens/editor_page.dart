@@ -240,6 +240,10 @@ class _SearchWidget extends State<SearchWidget> {
             prefixIcon: (focus.hasFocus || controller.text.isNotEmpty)
                 ? null
                 : const Icon(Icons.search),
+            prefixIconConstraints: const BoxConstraints(
+              minWidth: 5,
+              minHeight: 5,
+            ),
             suffixIcon: ClipOval(
               child: Material(
                 color: Colors.transparent,
@@ -250,6 +254,10 @@ class _SearchWidget extends State<SearchWidget> {
                       )
                     : null,
               ),
+            ),
+            suffixIconConstraints: const BoxConstraints(
+              minWidth: 5,
+              minHeight: 5,
             ),
           )),
     );
