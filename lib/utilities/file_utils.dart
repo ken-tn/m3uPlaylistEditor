@@ -53,16 +53,53 @@ Future<void> _requestPermissions() async {
   }
 }
 
+Future<Uri> getPlaylistsUri() async {
+  List<UriPermission> grantedUris = await persistedUriPermissions() ?? [];
+  grantedUris.removeWhere((element) => element.uri.path.contains('Music'));
+
+  // This is a first launch
+  // App uses permissions to track playlist directories
+  if (grantedUris.isEmpty) {
+    // Default to playlists on documents directory
+    // If there's no folder the user decide
+    late Uri chosenUri;
+
+    // exists on uri doesn't work, but this does
+    if (Directory('/storage/emulated/0/Playlists').existsSync()) {
+      logger.d('Playlists directory found');
+      final Uri playlistUri = Uri.parse(
+          'content://com.android.externalstorage.documents/tree/primary%3APlaylists');
+
+      chosenUri = await waitSafPermission(playlistUri);
+    } else if (Directory('/storage/emulated/0/Documents/Playlists')
+        .existsSync()) {
+      logger.d('Documents/Playlists directory found');
+      final Uri playlistUri = Uri.parse(
+          'content://com.android.externalstorage.documents/tree/primary%3ADocuments%2FPlaylists');
+
+      chosenUri = await waitSafPermission(playlistUri);
+    } else {
+      logger.d('Playlists not found');
+      // request a directory, then create playlists directory inside
+      final Uri documentsUri = Uri.parse(
+          'content://com.android.externalstorage.documents/tree/primary%3ADocuments');
+      final customUri = await waitSafPermission(documentsUri);
+      chosenUri = (await createDirectory(customUri, 'Playlists'))!.uri;
+    }
+
+    logger.d("Chosen URI: $chosenUri");
+    return chosenUri;
+  }
+
+  // TODO: support more than 1 music path
+  return grantedUris[0].uri;
+}
+
 Future<Object?> createPlaylistFile(String name) async {
   //await _requestPermissions();
-  final Uri playlistUriPath = Uri.parse(
-      'content://com.android.externalstorage.documents/tree/primary%3APlaylists');
+  final Uri playlistUri = await getPlaylistsUri();
 
-  Uri playlistUri = await waitSafPermission(playlistUriPath);
   Directory dir = Directory('/storage/emulated/0/Playlists');
-  if (!dir.existsSync()) {
-    dir = await Directory(dir.path).create();
-  }
   File playlistFile = File('${dir.path}/$name.m3u');
   if (playlistFile.existsSync()) {
     return playlistFile;
@@ -72,7 +109,6 @@ Future<Object?> createPlaylistFile(String name) async {
     playlistUri,
     mimeType: 'audio/x-mpegurl',
     displayName: '$name.m3u',
-    content: '',
   );
 }
 
@@ -180,9 +216,7 @@ Future<List<Playlist>> loadPlaylists() async {
   List<Playlist> playlists = [];
 
   if (Platform.isAndroid) {
-    final Uri playlistUri = Uri.parse(
-        'content://com.android.externalstorage.documents/tree/primary%3APlaylists');
-    await waitSafPermission(playlistUri);
+    final Uri playlistUri = await getPlaylistsUri();
 
     List<DocumentFile> playlistFiles = await recursiveListFiles(playlistUri);
     logger.d("Asynchronously loading playlists.");
