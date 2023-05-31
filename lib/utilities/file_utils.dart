@@ -176,11 +176,24 @@ Future<Uri> waitSafPermission(Uri uri) async {
   return tempUri;
 }
 
+/// Convert a [uriPath] to a SD path
 String toRealPath(String uriPath) {
-  String realPath = Uri.decodeFull(basename(uriPath));
-  String asdf = realPath.substring(realPath.indexOf(':') + 1);
+  String sdPath = Uri.decodeFull(basename(uriPath));
+  sdPath = sdPath.substring(sdPath.indexOf(':') + 1);
 
-  return '/storage/emulated/0/$asdf';
+  return '/storage/emulated/0/$sdPath';
+}
+
+/// Convert a [sdPath] to a Uri path
+String toUriPath(String sdPath) {
+  // Remove sdcard prefix
+  String uriPath = sdPath.replaceFirst(RegExp(r'/storage/emulated/0/'), '');
+  // Uri encode path
+  uriPath = Uri.encodeComponent(uriPath);
+  // Prefix with Uri location
+  uriPath = '/tree/primary%3AMusic/document/primary%3A$uriPath';
+
+  return uriPath;
 }
 
 const List<DocumentFileColumn> columns = <DocumentFileColumn>[

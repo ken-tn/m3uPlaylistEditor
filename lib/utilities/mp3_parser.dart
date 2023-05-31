@@ -9,14 +9,13 @@ import 'package:path_provider/path_provider.dart';
 import 'package:shared_storage/saf.dart';
 import 'package:uuid/uuid.dart';
 
-import 'file_utils.dart';
 import 'log.dart';
 
 const uuid = Uuid();
 
 Future<Audio> toMP3(DocumentFile file) async {
   // check the database first
-  String uripath = toRealPath(file.uri.path);
+  String uripath = file.uri.path;
   logger.i(uripath);
   List results = await findAudio(uripath);
   int lastModified = file.lastModified!.millisecondsSinceEpoch;

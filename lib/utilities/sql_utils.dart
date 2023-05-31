@@ -7,7 +7,7 @@ import 'package:m3u_playlist/models/audio_model.dart';
 
 import 'log.dart';
 
-const databaseVersion = 6;
+const databaseVersion = 7;
 const databaseName = 'm3u_playlist_data.db';
 
 Future<Database> connectToDatabase() async {
@@ -70,7 +70,6 @@ Future<List> findAudio(String path) async {
     whereArgs: [path],
   );
 
-  logger.d('Query complete: findAudio($path) | $result');
   return result;
 }
 

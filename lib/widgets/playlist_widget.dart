@@ -15,17 +15,43 @@ class PlaylistWidget extends StatefulWidget {
   State<PlaylistWidget> createState() => _PlaylistWidget();
 }
 
-void _onRenameClick(Playlist playlist) {
+void _onRenameClick(
+    BuildContext context, Playlist playlist, AppState appState) {
   //File p = File(playlist.path).rename(newPath);
+}
+
+void _onDeleteClick(
+    BuildContext context, Playlist playlist, AppState appState) {
+  playlist.delete().then((success) => {
+        Navigator.of(context).pop(),
+        if (success)
+          {
+            appState.updatePlaylists(),
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Deleted ${playlist.name()}'),
+              ),
+            )
+          }
+        else
+          {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Failed to delete ${playlist.name()}'),
+              ),
+            )
+          }
+      });
 }
 
 const Map<String, Function> buttons = {
   'Rename': _onRenameClick,
+  'Delete': _onDeleteClick,
 };
 
 class _PlaylistWidget extends State<PlaylistWidget> {
-  void showAction(BuildContext context, var playlist) {
-    showDialog<void>(
+  void showAction(BuildContext context, var playlist, AppState appState) {
+    showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
@@ -41,7 +67,7 @@ class _PlaylistWidget extends State<PlaylistWidget> {
                   for (var entry in buttons.entries)
                     ListTile(
                       title: Text(entry.key),
-                      onTap: () => entry.value(playlist),
+                      onTap: () => entry.value(context, playlist, appState),
                     ),
                 ],
               ),
@@ -92,7 +118,7 @@ class _PlaylistWidget extends State<PlaylistWidget> {
                     Navigator.of(context).push(_editorRoute());
                   },
                   onLongPress: () {
-                    showAction(context, playlist);
+                    showAction(context, playlist, appState);
                   },
                 ),
             ],
