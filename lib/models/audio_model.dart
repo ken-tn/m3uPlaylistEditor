@@ -34,7 +34,21 @@ class Audio {
   }
 
   int compareLastModified(Audio other) {
-    return lastModified.compareTo(other.lastModified);
+    int modifiedCompare = lastModified.compareTo(other.lastModified);
+
+    // File last modified isn't millisecond accurate
+    // Sort by album then title as backup
+    if (modifiedCompare == 0) {
+      int albumCompare = 0;
+
+      if (albumCompare == 0) {
+        return compareTrack(other);
+      }
+
+      return albumCompare;
+    }
+
+    return modifiedCompare;
   }
 
   int compareTitle(Audio other) {
