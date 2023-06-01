@@ -19,4 +19,5 @@ EXIT /B 0
 
 :fail
 echo Set DEVICE_ID in %~dp0build.bat
+CALL adb devices -l
 EXIT /B 1

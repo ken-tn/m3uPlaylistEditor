@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:m3u_playlist/models/audio_model.dart';
@@ -95,6 +96,7 @@ class _EditorWidget extends State<EditorWidget> {
       List<Audio> loadedSongs, BuildContext context) {
     return Expanded(
       child: ReorderableListView(
+        autoScrollerVelocityScalar: max(100, selectedPlaylist.songs.length / 2),
         scrollController: myScrollController,
         onReorder: (oldIndex, newIndex) => {
           selectedPlaylist.swap(oldIndex, newIndex),
