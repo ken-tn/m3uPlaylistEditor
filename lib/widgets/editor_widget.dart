@@ -9,13 +9,11 @@ import 'package:provider/provider.dart';
 
 class EditorWidget extends StatefulWidget {
   final List<Audio> filteredSongs;
-  final SaveCallback onSave;
   final String sortType;
 
   const EditorWidget({
     super.key,
     required this.filteredSongs,
-    required this.onSave,
     required this.sortType,
   });
 
@@ -36,7 +34,6 @@ class _EditorWidget extends State<EditorWidget> {
       Playlist selectedPlaylist = appState.selectedPlaylist;
       List<Audio> loadedSongs = selectedPlaylist.toList(songs);
 
-      widget.onSave(loadedSongs);
       switch (sortType) {
         case 'Modified':
           songs.sort((a, b) => a.compareLastModified(b));
@@ -59,7 +56,7 @@ class _EditorWidget extends State<EditorWidget> {
         setState(
           () => {loadedSongs = selectedPlaylist.toList(songs)},
         );
-        widget.onSave(loadedSongs);
+        appState.notify();
       }
 
       return OrientationBuilder(builder: (context, orientation) {
@@ -241,5 +238,3 @@ class _LeadingIconWidget extends State<LeadingIconWidget> {
     );
   }
 }
-
-typedef SaveCallback = void Function(List<Audio> songs);

@@ -16,6 +16,10 @@ class AppState extends ChangeNotifier {
     Future.wait([audio, playlists]).then((value) => isLoading = false);
   }
 
+  void notify() {
+    notifyListeners();
+  }
+
   void updateSelectedPlaylist(Playlist playlist) {
     selectedPlaylist = playlist;
     notifyListeners();

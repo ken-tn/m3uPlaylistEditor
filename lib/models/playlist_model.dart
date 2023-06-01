@@ -12,9 +12,11 @@ import '../utilities/log.dart';
 
 class Playlist {
   final String path;
-  final List<String> songs;
+  List<String> songs;
+  final List<List<String>> past = [];
+  final List<List<String>> future = [];
 
-  const Playlist({
+  Playlist({
     required this.path,
     required this.songs,
   });
@@ -55,6 +57,37 @@ class Playlist {
     return mapped;
   }
 
+  bool redo() {
+    if (future.isEmpty) {
+      logger.d("Redo failed");
+      return false;
+    }
+
+    List<String> next = future.removeAt(0);
+    past.add(List<String>.from(songs));
+    songs = next;
+
+    return true;
+  }
+
+  bool undo() {
+    if (past.isEmpty) {
+      logger.d("Undo failed");
+      return false;
+    }
+
+    List<String> prev = past.removeLast();
+    future.insert(0, List<String>.from(songs));
+    songs = prev;
+
+    return true;
+  }
+
+  void addMove() {
+    past.add(List<String>.from(songs));
+    future.clear();
+  }
+
   bool add(String path) {
     for (String song in songs) {
       if (song == path) {
@@ -62,6 +95,7 @@ class Playlist {
       }
     }
 
+    addMove();
     songs.add(path);
     return true;
   }
@@ -69,6 +103,7 @@ class Playlist {
   bool remove(String path) {
     for (String song in songs) {
       if (song == path) {
+        addMove();
         songs.remove(song);
         return true;
       }
@@ -88,6 +123,7 @@ class Playlist {
       logger.d('Playlist failed to move: $oldIndex to $newIndex.');
       return false;
     }
+    addMove();
     logger.d('Playlist moving $oldIndex to $newIndex');
 
     final String old = songs[oldIndex];
@@ -143,14 +179,14 @@ class Playlist {
     return success;
   }
 
-  Future<bool?> save(List<Audio> songs) async {
+  Future<bool?> save() async {
     logger.d("Attempting to save.");
     Uri playlistUri =
         Uri.parse('content://com.android.externalstorage.documents$path');
 
     String output = '';
-    for (Audio song in songs) {
-      output += '${toRealPath(song.path)}\n';
+    for (String song in songs) {
+      output += '${toRealPath(song)}\n';
     }
 
     // remove file endline
