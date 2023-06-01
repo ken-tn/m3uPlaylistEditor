@@ -3,16 +3,20 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:m3u_playlist/models/audio_model.dart';
+import 'package:m3u_playlist/utilities/sql_utils.dart';
 import 'package:path/path.dart';
-import 'package:shared_storage/saf.dart';
+import 'package:shared_storage/saf.dart' as saf;
 
+import '../utilities/file_utils.dart';
 import '../utilities/log.dart';
 
 class Playlist {
   final String path;
-  final List<String> songs;
+  List<String> songs;
+  final List<List<String>> past = [];
+  final List<List<String>> future = [];
 
-  const Playlist({
+  Playlist({
     required this.path,
     required this.songs,
   });
@@ -53,6 +57,37 @@ class Playlist {
     return mapped;
   }
 
+  bool redo() {
+    if (future.isEmpty) {
+      logger.d("Redo failed");
+      return false;
+    }
+
+    List<String> next = future.removeAt(0);
+    past.add(List<String>.from(songs));
+    songs = next;
+
+    return true;
+  }
+
+  bool undo() {
+    if (past.isEmpty) {
+      logger.d("Undo failed");
+      return false;
+    }
+
+    List<String> prev = past.removeLast();
+    future.insert(0, List<String>.from(songs));
+    songs = prev;
+
+    return true;
+  }
+
+  void addMove() {
+    past.add(List<String>.from(songs));
+    future.clear();
+  }
+
   bool add(String path) {
     for (String song in songs) {
       if (song == path) {
@@ -60,6 +95,7 @@ class Playlist {
       }
     }
 
+    addMove();
     songs.add(path);
     return true;
   }
@@ -67,6 +103,7 @@ class Playlist {
   bool remove(String path) {
     for (String song in songs) {
       if (song == path) {
+        addMove();
         songs.remove(song);
         return true;
       }
@@ -86,6 +123,7 @@ class Playlist {
       logger.d('Playlist failed to move: $oldIndex to $newIndex.');
       return false;
     }
+    addMove();
     logger.d('Playlist moving $oldIndex to $newIndex');
 
     final String old = songs[oldIndex];
@@ -109,24 +147,53 @@ class Playlist {
   }
 
   String name() {
-    return basename(Uri.decodeFull(path));
+    return basenameWithoutExtension(Uri.decodeFull(path));
   }
 
-  Future<bool?> save(List<Audio> songs) async {
+  Future<bool?> delete() async {
+    Uri playlistUri =
+        Uri.parse('content://com.android.externalstorage.documents$path');
+    final String? fileContent =
+        await saf.getDocumentContentAsString(playlistUri);
+
+    // Failed to get playlist content, abort
+    if (fileContent == null) {
+      return null;
+    }
+
+    // Don't save an empty playlist
+    if (fileContent == '') {
+      return await saf.delete(Uri.parse(
+              'content://com.android.externalstorage.documents$path')) ??
+          false;
+    }
+
+    bool success = await saf.delete(Uri.parse(
+            'content://com.android.externalstorage.documents$path')) ??
+        false;
+    // Backup playlist in database
+    if (success) {
+      insertDeleted(name(), fileContent);
+    }
+
+    return success;
+  }
+
+  Future<bool?> save() async {
     logger.d("Attempting to save.");
     Uri playlistUri =
         Uri.parse('content://com.android.externalstorage.documents$path');
 
     String output = '';
-    for (Audio song in songs) {
-      output += '${song.path}\n';
+    for (String song in songs) {
+      output += '${toRealPath(song)}\n';
     }
 
     // remove file endline
     output = output.substring(0, output.length - 1);
     logger.d('Saving playlist\n$output');
 
-    return await writeToFileAsBytes(
+    return await saf.writeToFileAsBytes(
       playlistUri,
       bytes: utf8.encode(output) as Uint8List,
       mode: FileMode.write,

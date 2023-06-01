@@ -7,10 +7,18 @@ import 'package:m3u_playlist/utilities/file_utils.dart';
 import '../models/audio_model.dart';
 
 class AppState extends ChangeNotifier {
-  bool isLoading = false;
+  bool isLoading = true;
   Future<List<Playlist>> playlists = loadPlaylists();
   Future<List<Audio>> audio = loadAudio();
   late Playlist selectedPlaylist;
+
+  AppState() {
+    Future.wait([audio, playlists]).then((value) => isLoading = false);
+  }
+
+  void notify() {
+    notifyListeners();
+  }
 
   void updateSelectedPlaylist(Playlist playlist) {
     selectedPlaylist = playlist;
