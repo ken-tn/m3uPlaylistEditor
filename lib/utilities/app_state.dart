@@ -9,11 +9,11 @@ import '../models/audio_model.dart';
 class AppState extends ChangeNotifier {
   bool isLoading = true;
   Future<List<Playlist>> playlists = loadPlaylists();
-  Future<List<Audio>> audio = loadAudio();
+  Stream<List<Audio>> audio = loadAudio();
   late Playlist selectedPlaylist;
 
   AppState() {
-    Future.wait([audio, playlists]).then((value) => isLoading = false);
+    Future.wait([playlists]).then((value) => {isLoading = false});
   }
 
   void updateSelectedPlaylist(Playlist playlist) {
@@ -45,9 +45,7 @@ class AppState extends ChangeNotifier {
     Future<List<Playlist>> newPlaylists = loadPlaylists();
     await newPlaylists;
     playlists = newPlaylists;
-    Future<List<Audio>> newAudio = loadAudio();
-    await newAudio;
-    audio = newAudio;
+    audio = loadAudio();
     isLoading = false;
     notifyListeners();
 

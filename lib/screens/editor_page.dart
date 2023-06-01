@@ -4,6 +4,7 @@ import 'package:m3u_playlist/utilities/app_state.dart';
 import 'package:m3u_playlist/widgets/editor_widget.dart';
 import 'package:provider/provider.dart';
 
+import '../utilities/file_utils.dart';
 import '../utilities/log.dart';
 
 class EditorPage extends StatefulWidget {
@@ -51,11 +52,11 @@ class _EditorPage extends State<EditorPage> {
     var appState = context.watch<AppState>();
     var audio = appState.audio;
 
-    return FutureBuilder<List>(
-        future: audio,
+    return StreamBuilder<List>(
+        stream: loadAudio(),
         builder: (context, AsyncSnapshot<List<dynamic>> snapshot) {
           if (snapshot.hasData) {
-            _songData = snapshot.data! as List<Audio>;
+            _songData = snapshot.data as List<Audio>;
             if (filteredSongs.isEmpty && _searchController.text.isEmpty) {
               filteredSongs = _songData;
             }
@@ -97,16 +98,15 @@ class _EditorPage extends State<EditorPage> {
                               },
                               dropdownValue: dropdownValue,
                             )
-                          : Center(
+                          : const Center(
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
-                                children: const [
+                                children: [
                                   Padding(
                                     padding: EdgeInsets.all(16.0),
                                     child: CircularProgressIndicator(),
                                   ),
-                                  Text(
-                                      'This can take a few minutes on first launch.')
+                                  Text('One moment.')
                                 ],
                               ),
                             ));
@@ -182,8 +182,8 @@ class _SortByWidget extends State<SortByWidget> {
   Widget build(BuildContext context) {
     return DropdownButton(
         value: widget.dropdownValue,
-        icon: Row(
-          children: const [
+        icon: const Row(
+          children: [
             Padding(
               padding: EdgeInsets.all(3.0),
             ),

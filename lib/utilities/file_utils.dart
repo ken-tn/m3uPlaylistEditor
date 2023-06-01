@@ -262,7 +262,7 @@ Future<List<Playlist>> loadPlaylists() async {
   return playlists;
 }
 
-Future<List<Audio>> loadAudio() async {
+Stream<List<Audio>> loadAudio() async* {
   if (isLoading != null) {
     await isLoading;
   }
@@ -279,19 +279,18 @@ Future<List<Audio>> loadAudio() async {
     int processing = 0;
     int batchSize = 20;
     List<DocumentFile> audioFiles = await recursiveListFiles(musicUri);
-    logger.d("Asynchronously loading audio.");
+    logger
+        .i("Asynchronously loading audio.\nSongs found: ${audioFiles.length}");
     for (DocumentFile entity in audioFiles) {
       for (var entry in audioFileFormats.entries) {
         if (entity.type == entry.key) {
           // process in batches of batchSize
           if (processing > batchSize) {
-            await Future.wait(parsingSongs).then(
-              (loadedAudios) => {
-                songs.addAll(loadedAudios),
-                parsingSongs = [],
-                processing = 0,
-              },
-            );
+            List<Audio> loadedAudios = await Future.wait(parsingSongs);
+            songs.addAll(loadedAudios);
+            parsingSongs = [];
+            processing = 0;
+            yield songs;
           }
           processing++;
           Future<Audio> parsedAudio = entry.value(entity);
@@ -302,10 +301,9 @@ Future<List<Audio>> loadAudio() async {
   }
 
   // wait for the last futures to finish
-  await Future.wait(parsingSongs).then(
-    (loadedAudios) => {songs.addAll(loadedAudios)},
-  );
+  List<Audio> loadedAudios = await Future.wait(parsingSongs);
+  songs.addAll(loadedAudios);
+  yield songs;
   completer.complete(true);
   logger.d("Parsed all audio");
-  return songs;
 }
