@@ -21,27 +21,27 @@ void _onRenameClick(
 }
 
 void _onDeleteClick(
-    BuildContext context, Playlist playlist, AppState appState) {
-  playlist.delete().then((success) => {
-        Navigator.of(context).pop(),
-        if (success)
-          {
-            appState.updatePlaylists(),
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('Deleted ${playlist.name()}'),
-              ),
-            )
-          }
-        else
-          {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('Failed to delete ${playlist.name()}'),
-              ),
-            )
-          }
-      });
+    BuildContext context, Playlist playlist, AppState appState) async {
+  late String message;
+  Navigator.of(context).pop();
+  final bool? success = await playlist.delete();
+  if (success == null) {
+    message = 'Deleted ${playlist.name()}';
+  } else {
+    if (success) {
+      appState.updatePlaylists();
+      message = 'Deleted ${playlist.name()}';
+    } else {
+      message = 'Failed to delete ${playlist.name()}';
+    }
+  }
+
+  if (!context.mounted) return;
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: Text(message),
+    ),
+  );
 }
 
 const Map<String, Function> buttons = {

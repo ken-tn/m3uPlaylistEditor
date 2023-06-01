@@ -10,7 +10,7 @@ void main() async {
 
   // >10 sessions https://github.com/arthenica/ffmpeg-kit/issues/633
   FFmpegKitConfig.setSessionHistorySize(30);
-  loadDatabase();
+  await loadDatabase();
 
   runApp(const MainApp());
 }

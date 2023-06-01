@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:m3u_playlist/models/audio_model.dart';
+import 'package:m3u_playlist/utilities/sql_utils.dart';
 import 'package:path/path.dart';
 import 'package:shared_storage/saf.dart' as saf;
 
@@ -113,10 +114,33 @@ class Playlist {
     return basenameWithoutExtension(Uri.decodeFull(path));
   }
 
-  Future<bool> delete() async {
-    return await saf.delete(Uri.parse(
+  Future<bool?> delete() async {
+    Uri playlistUri =
+        Uri.parse('content://com.android.externalstorage.documents$path');
+    final String? fileContent =
+        await saf.getDocumentContentAsString(playlistUri);
+
+    // Failed to get playlist content, abort
+    if (fileContent == null) {
+      return null;
+    }
+
+    // Don't save an empty playlist
+    if (fileContent == '') {
+      return await saf.delete(Uri.parse(
+              'content://com.android.externalstorage.documents$path')) ??
+          false;
+    }
+
+    bool success = await saf.delete(Uri.parse(
             'content://com.android.externalstorage.documents$path')) ??
         false;
+    // Backup playlist in database
+    if (success) {
+      insertDeleted(name(), fileContent);
+    }
+
+    return success;
   }
 
   Future<bool?> save(List<Audio> songs) async {
