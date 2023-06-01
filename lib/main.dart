@@ -9,7 +9,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // >10 sessions https://github.com/arthenica/ffmpeg-kit/issues/633
-  FFmpegKitConfig.setSessionHistorySize(30);
+  FFmpegKitConfig.setSessionHistorySize(50);
   await loadDatabase();
 
   runApp(const MainApp());
