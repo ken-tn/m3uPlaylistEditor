@@ -26,7 +26,7 @@ void _onDeleteClick(
   Navigator.of(context).pop();
   final bool? success = await playlist.delete();
   if (success == null) {
-    message = 'Deleted ${playlist.name()}';
+    message = 'Failed to read ${playlist.name()}';
   } else {
     if (success) {
       appState.updatePlaylists();
