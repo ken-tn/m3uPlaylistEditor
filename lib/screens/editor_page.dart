@@ -95,12 +95,12 @@ class _EditorPage extends State<EditorPage> {
                               onSave: (List<Audio> loadedSongs) {
                                 _playlistAudios = loadedSongs;
                               },
-                              dropdownValue: dropdownValue,
+                              sortType: dropdownValue,
                             )
-                          : Center(
+                          : const Center(
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
-                                children: const [
+                                children: [
                                   Padding(
                                     padding: EdgeInsets.all(16.0),
                                     child: CircularProgressIndicator(),
@@ -138,7 +138,7 @@ class _EditorPage extends State<EditorPage> {
                       onSave: (List<Audio> loadedSongs) {
                         _playlistAudios = loadedSongs;
                       },
-                      dropdownValue: dropdownValue,
+                      sortType: dropdownValue,
                     ),
                   );
                 }
@@ -182,8 +182,8 @@ class _SortByWidget extends State<SortByWidget> {
   Widget build(BuildContext context) {
     return DropdownButton(
         value: widget.dropdownValue,
-        icon: Row(
-          children: const [
+        icon: const Row(
+          children: [
             Padding(
               padding: EdgeInsets.all(3.0),
             ),

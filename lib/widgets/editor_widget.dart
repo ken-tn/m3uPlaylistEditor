@@ -10,13 +10,13 @@ import 'package:provider/provider.dart';
 class EditorWidget extends StatefulWidget {
   final List<Audio> filteredSongs;
   final SaveCallback onSave;
-  final String dropdownValue;
+  final String sortType;
 
   const EditorWidget({
     super.key,
     required this.filteredSongs,
     required this.onSave,
-    required this.dropdownValue,
+    required this.sortType,
   });
 
   @override
@@ -30,7 +30,7 @@ class _EditorWidget extends State<EditorWidget> {
   Widget build(BuildContext context) {
     var appState = context.watch<AppState>();
     List<Audio> songs = widget.filteredSongs;
-    String sortType = widget.dropdownValue;
+    String sortType = widget.sortType;
 
     return LayoutBuilder(builder: (context, constraints) {
       Playlist selectedPlaylist = appState.selectedPlaylist;

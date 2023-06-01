@@ -188,10 +188,12 @@ String toRealPath(String uriPath) {
 String toUriPath(String sdPath) {
   // Remove sdcard prefix
   String uriPath = sdPath.replaceFirst(RegExp(r'/storage/emulated/0/'), '');
+  // Get top-level directory name
+  String dirName = uriPath.substring(0, uriPath.indexOf("/"));
   // Uri encode path
   uriPath = Uri.encodeComponent(uriPath);
   // Prefix with Uri location
-  uriPath = '/tree/primary%3AMusic/document/primary%3A$uriPath';
+  uriPath = '/tree/primary%3A$dirName/document/primary%3A$uriPath';
 
   return uriPath;
 }
@@ -267,6 +269,7 @@ Future<List<Audio>> loadAudio() async {
     await isLoading;
   }
   final Completer completer = Completer<bool>();
+  isLoading = completer.future;
   //await _requestPermissions();
 
   List<Audio> songs = [];

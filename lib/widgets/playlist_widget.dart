@@ -36,6 +36,7 @@ void _onDeleteClick(
     }
   }
 
+  // ignore: use_build_context_synchronously
   if (!context.mounted) return;
   ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(
