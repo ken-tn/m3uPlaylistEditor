@@ -1,21 +1,21 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import App from './App.tsx'
-import './index.css'
+import App2 from './AppPrivacy.tsx'
+import '../index.css'
 import {
     createBrowserRouter,
     RouterProvider,
   } from "react-router-dom";
-import Root from './routes/root.tsx';
+import Root from '../routes/root.tsx';
 
 const router = createBrowserRouter([
     {
-        path: "/",
+        path: "/privacy",
         element: <Root />,
         children: [
             {
                 index: true,
-                element: <App />,
+                element: <App2 />,
             },
         ]
     },
