@@ -2,8 +2,11 @@
   "name": "pages-app",
   "private": true,
   "version": "0.0.0",
+  "homepage": "https://ken-tn.github.io/m3uPlaylistEditor",
   "type": "module",
   "scripts": {
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d dist",
     "dev": "vite",
     "build": "tsc && vite build",
     "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
@@ -22,6 +25,7 @@
     "eslint": "^8.38.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.3.4",
+    "gh-pages": "^5.0.0",
     "typescript": "^5.0.2",
     "vite": "^4.3.9"
   }
