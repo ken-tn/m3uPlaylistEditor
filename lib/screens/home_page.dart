@@ -37,7 +37,7 @@ class _HomePageState extends State<HomePage> {
     }
 
     void showAction(BuildContext context) {
-      showDialog<void>(
+      showDialog(
         context: context,
         builder: (context) {
           return AlertDialog(

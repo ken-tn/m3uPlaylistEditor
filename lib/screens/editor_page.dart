@@ -4,6 +4,7 @@ import 'package:m3u_playlist/utilities/app_state.dart';
 import 'package:m3u_playlist/widgets/editor_widget.dart';
 import 'package:provider/provider.dart';
 
+import '../models/playlist_model.dart';
 import '../utilities/log.dart';
 
 class EditorPage extends StatefulWidget {
@@ -17,7 +18,6 @@ final List<String> dropDown = <String>['Modified', 'Artist', 'Title', 'Album'];
 
 class _EditorPage extends State<EditorPage> {
   final TextEditingController _searchController = TextEditingController();
-  List<Audio> _playlistAudios = [];
   List<Audio> filteredSongs = [];
   List<Audio> _songData = [];
   String dropdownValue = dropDown.first;
@@ -79,28 +79,27 @@ class _EditorPage extends State<EditorPage> {
                               dropdownValue = value;
                             }),
                           ),
-                          const Padding(padding: EdgeInsets.all(10.0)),
+                          const Padding(padding: EdgeInsets.all(5.0)),
                           SearchWidget(
-                            width: 110,
+                            width: 70,
                             controller: _searchController,
                           ),
+                          undoActionButton(context),
+                          redoActionButton(context),
                         ]),
                         actions: [
-                          saveActionButton(appState),
+                          saveActionButton(context),
                         ],
                       ),
                       body: snapshot.hasData
                           ? EditorWidget(
                               filteredSongs: filteredSongs,
-                              onSave: (List<Audio> loadedSongs) {
-                                _playlistAudios = loadedSongs;
-                              },
-                              dropdownValue: dropdownValue,
+                              sortType: dropdownValue,
                             )
-                          : Center(
+                          : const Center(
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
-                                children: const [
+                                children: [
                                   Padding(
                                     padding: EdgeInsets.all(16.0),
                                     child: CircularProgressIndicator(),
@@ -130,15 +129,15 @@ class _EditorPage extends State<EditorPage> {
                         ),
                       ]),
                       actions: [
-                        saveActionButton(appState),
+                        undoActionButton(context),
+                        redoActionButton(context),
+                        const Padding(padding: EdgeInsets.all(20.0)),
+                        saveActionButton(context),
                       ],
                     ),
                     body: EditorWidget(
                       filteredSongs: filteredSongs,
-                      onSave: (List<Audio> loadedSongs) {
-                        _playlistAudios = loadedSongs;
-                      },
-                      dropdownValue: dropdownValue,
+                      sortType: dropdownValue,
                     ),
                   );
                 }
@@ -148,17 +147,63 @@ class _EditorPage extends State<EditorPage> {
         });
   }
 
-  IconButton saveActionButton(AppState appState) {
+  IconButton saveActionButton(BuildContext context) {
+    var appState = context.watch<AppState>();
+    final Playlist selectedPlaylist = appState.selectedPlaylist;
     return IconButton(
       icon: const Icon(Icons.save),
       tooltip: 'Save',
-      onPressed: () {
-        if (_playlistAudios.isEmpty) {
-          logger.d("Playlist is empty, not saving.");
-          return;
-        }
-        appState.selectedPlaylist.save(_playlistAudios);
-      },
+      onPressed: selectedPlaylist.songs.isEmpty
+          ? null
+          : () {
+              if (selectedPlaylist.songs.isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Playlist is empty.'),
+                  ),
+                );
+                return;
+              }
+              selectedPlaylist.save().then((value) => {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content:
+                            Text('Saved ${appState.selectedPlaylist.name()}.'),
+                      ),
+                    ),
+                  });
+            },
+    );
+  }
+
+  // Actions
+  IconButton undoActionButton(BuildContext context) {
+    var appState = context.watch<AppState>();
+    final Playlist playlist = appState.selectedPlaylist;
+    return IconButton(
+      icon: const Icon(Icons.undo),
+      tooltip: 'Undo',
+      onPressed: playlist.past.isEmpty
+          ? null
+          : () {
+              playlist.undo();
+              appState.notify();
+            },
+    );
+  }
+
+  IconButton redoActionButton(BuildContext context) {
+    var appState = context.watch<AppState>();
+    final Playlist playlist = appState.selectedPlaylist;
+    return IconButton(
+      icon: const Icon(Icons.redo),
+      tooltip: 'Redo',
+      onPressed: playlist.future.isEmpty
+          ? null
+          : () {
+              playlist.redo();
+              appState.notify();
+            },
     );
   }
 }
@@ -182,8 +227,8 @@ class _SortByWidget extends State<SortByWidget> {
   Widget build(BuildContext context) {
     return DropdownButton(
         value: widget.dropdownValue,
-        icon: Row(
-          children: const [
+        icon: const Row(
+          children: [
             Padding(
               padding: EdgeInsets.all(3.0),
             ),

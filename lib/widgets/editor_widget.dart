@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:m3u_playlist/models/audio_model.dart';
@@ -8,14 +9,12 @@ import 'package:provider/provider.dart';
 
 class EditorWidget extends StatefulWidget {
   final List<Audio> filteredSongs;
-  final SaveCallback onSave;
-  final String dropdownValue;
+  final String sortType;
 
   const EditorWidget({
     super.key,
     required this.filteredSongs,
-    required this.onSave,
-    required this.dropdownValue,
+    required this.sortType,
   });
 
   @override
@@ -29,13 +28,12 @@ class _EditorWidget extends State<EditorWidget> {
   Widget build(BuildContext context) {
     var appState = context.watch<AppState>();
     List<Audio> songs = widget.filteredSongs;
-    String sortType = widget.dropdownValue;
+    String sortType = widget.sortType;
 
     return LayoutBuilder(builder: (context, constraints) {
       Playlist selectedPlaylist = appState.selectedPlaylist;
       List<Audio> loadedSongs = selectedPlaylist.toList(songs);
 
-      widget.onSave(loadedSongs);
       switch (sortType) {
         case 'Modified':
           songs.sort((a, b) => a.compareLastModified(b));
@@ -58,7 +56,7 @@ class _EditorWidget extends State<EditorWidget> {
         setState(
           () => {loadedSongs = selectedPlaylist.toList(songs)},
         );
-        widget.onSave(loadedSongs);
+        appState.notify();
       }
 
       return OrientationBuilder(builder: (context, orientation) {
@@ -95,6 +93,7 @@ class _EditorWidget extends State<EditorWidget> {
       List<Audio> loadedSongs, BuildContext context) {
     return Expanded(
       child: ReorderableListView(
+        autoScrollerVelocityScalar: max(100, selectedPlaylist.songs.length / 2),
         scrollController: myScrollController,
         onReorder: (oldIndex, newIndex) => {
           selectedPlaylist.swap(oldIndex, newIndex),
@@ -239,5 +238,3 @@ class _LeadingIconWidget extends State<LeadingIconWidget> {
     );
   }
 }
-
-typedef SaveCallback = void Function(List<Audio> songs);
