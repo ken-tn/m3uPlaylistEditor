@@ -54,7 +54,7 @@ class _EditorWidget extends State<EditorWidget> {
 
       void updateState() {
         setState(
-          () => {loadedSongs = selectedPlaylist.toList(songs)},
+          () => loadedSongs = selectedPlaylist.toList(songs),
         );
         appState.notify();
       }

@@ -18,7 +18,7 @@ Future<Playlist> toPlaylist(DocumentFile file) async {
   const splitter = LineSplitter();
   splitter
       .convert(utf8.decode(content))
-      .forEach((line) => {songs.add(toUriPath(line))});
+      .forEach((line) => songs.add(toUriPath(line)));
 
   Playlist newPlaylist = Playlist(path: file.uri.path, songs: songs);
   insertPlaylist(newPlaylist);
