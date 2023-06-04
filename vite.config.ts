@@ -11,10 +11,9 @@ export default defineConfig({
       input: {
         index: resolve(__dirname, 'index.html'),
         main: resolve(__dirname, 'src/main.tsx'),
-        'privacy/index': resolve(__dirname, 'privacy/index.html'),
+        privacy: resolve(__dirname, 'privacy.html'),
         'privacy/main': resolve(__dirname, 'src/privacy/main.tsx'),
       },
-      external: ['src/privacy/main.tsx'],
     },
   },
 })
