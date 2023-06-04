@@ -77,7 +77,9 @@ Future<Audio> toMP3(DocumentFile file) async {
   final format = information.getFormatProperties();
   if (format != null) {
     final tags = format['tags'];
-    audio.tags.addAll(Map<String, Object>.from(tags));
+    if (tags != null) {
+      audio.tags.addAll(Map<String, Object>.from(tags));
+    }
     logger.d(audio.tags);
 
     insertAudio(audio);
