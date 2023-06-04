@@ -12,7 +12,6 @@ export default defineConfig({
         index: resolve(__dirname, 'index.html'),
         main: resolve(__dirname, 'src/main.tsx'),
         privacy: resolve(__dirname, 'privacy.html'),
-        'privacy/main': resolve(__dirname, 'src/privacy/main.tsx'),
       },
     },
   },
